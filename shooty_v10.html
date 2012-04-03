@@ -1,0 +1,111 @@
+<html>
+<head><meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <title>Shooty V10</title>
+    <style>
+        body {
+            font-size:10px;
+        }
+        canvas {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            margin: 0px;
+            padding: 0px;
+        }
+        #tab1, #tab2 {
+            visibility: hidden;
+        }
+        #tab1 textarea{
+            position:absolute;
+            left: 910px;
+            top: 40px;
+            width: 200px;
+            height: 560px;
+        }
+        #tab2 .settings {
+            position:absolute;
+            left: 910px;
+            top: 40px;
+            width: 200px;
+            height: 560px;
+        }
+        #tab_switch {
+            position: absolute;
+            left:910px;
+            top: 10px;
+        }
+        
+        .settings {
+            position: absolute;
+            left: 910px;
+            top: 10px;
+            width: 400px;
+            height: 800px;
+        }
+        .settings input {
+            font-size: 10px;
+            width: 80px;
+            border:1px solid black;
+        }
+        .timeline ul {
+            padding: 0; margin: 0; width:100%; list-style: none;
+        }
+        .timeline li {
+            list-style:none;
+        } 
+        .timeline input {
+            width: 40px;
+        }
+    </style>
+    <script src="shots.js"></script>
+    <script src="enemy.js"></script>
+    <script src="player.js"></script>
+    <script src="particle.js"></script>
+    <script src="level.js"></script>
+    <script src="editor.js"></script>
+    <script src="game.js"></script>
+    <script src="level_01.js"></script>
+    <script src="level_02.js"></script>
+</head>
+<body onload="start_editor();">
+    <canvas id="gcanvas" width="900" height="600"></canvas>
+    <div id="tab_switch">
+        <input type="button" id="switch_buttons" value="Buttons" onclick="document.getElementById('tab1').style.visibility='hidden';document.getElementById('tab2').style.visibility='visible';" />
+        <input type="button" id="switch_textarea" value="Script" onclick="document.getElementById('tab1').style.visibility='visible';document.getElementById('tab2').style.visibility='hidden';"/>
+        <input type="button" id="start_game" value="Play!" onclick="stop_editor();start_game();"/>
+    </div>
+    <div id="tab1">
+        <textarea id="ed_script"></textarea>
+    </div>
+    <div id="tab2">
+        <div class="settings">
+            <label for="ed_points">Points:</label><input id="ed_points" value="0" /><br>
+            <label for="ed_energy">Energy:</label><input id="ed_energy" value="0" /><br>
+            <label for="ed_shooting">Shooting:</label><input type="checkbox" id="ed_shooting" /><br>
+            
+            <label for="ed_shootLeft">Shot Left:</label>
+            <select id="ed_shootLeft" size="1">
+                <option>none</option>
+            </select><br>
+            <label for="ed_shootMiddle">Shot Middle:</label>
+            <select id="ed_shootMiddle" size="1">
+                <option>none</option>
+            </select><br>
+            <label for="ed_shootRight">Shot Right:</label>
+            <select id="ed_shootRight" size="1">
+                <option>none</option>
+            </select><br>
+            <label for="ed_shootingFrequency">Shooting freq:</label><input id="ed_shootingFrequency" value="0" /><br>
+            <label for="ed_shootingEnergy">Shooting energy:</label><input id="ed_shootingEnergy" value="0" /><br>
+            <div class="buttons">
+                <input type="button" value="Add Trigger" id="ed_add_trigger" onclick="Editor.addTrigger();" />
+                <input type="button" value="Save" id="ed_save_all" onclick="Editor.saveCurrent();" />
+            </div><br>
+            <div class="timeline">
+                <ul id="ed_timeline">
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
