@@ -1,0 +1,39 @@
+<html>
+<head><meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+    <title>Shooty JS DEMO Level</title>
+    <style>
+        body {
+            font-size:10px;
+			background-color: #000000;
+			background-image: url(gfx/website/background2.png);
+			background-size: 100%;
+			background-repeat:no-repeat;
+        }
+		img{
+			position: absolute;
+            margin: 0px;
+            padding: 0px;				
+		}
+        canvas {
+            position: absolute;
+            top: 50px;
+            left: 140px;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+    <script src="shots.js"></script>
+    <script src="enemy.js"></script>
+    <script src="player.js"></script>
+    <script src="particle.js"></script>
+    <script src="level.js"></script>
+    <script src="editor.js"></script>
+    <script src="game.js"></script>
+    <script src="level_01.js"></script>
+    <script src="level_02.js"></script>
+</head>
+<body onload="start_game();">
+    <canvas id="gcanvas" width="900" height="600"></canvas>
+
+</body>
+</html>
