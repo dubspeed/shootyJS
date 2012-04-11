@@ -1,5 +1,5 @@
 Level = new MasterLevel();
-Level.name = "01";
+Level.name = "02";
 (Level.gameOver = new Image()).src = "gfx/game_over.png";
 (Level.levelComplete =  new Image()).src = "gfx/level_complete.png";
 (Level.bg = new Image()).src = "gfx/level1_bg.png";

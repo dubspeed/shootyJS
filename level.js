@@ -27,30 +27,36 @@ function MasterLevel() {
         }
         this.anims[name].frameCount = frameCount - 1;
     }
+	this.executeActionCommand = function(action, currentTime, level) {
+		var time = action[0],
+            command = action[1],
+            id = action[2];
+        if(currentTime == time)
+            try {
+                command(level, id);
+            } catch (e) {
+            }
+	}
     this.script = function() {
-        l = Game.Level[Game.currentLevel];
-        for( var i = 0; i < l.TimeLine.length; i++) {
-            time = l.TimeLine[i][0];
-            command = l.TimeLine[i][1];
-            id = l.TimeLine[i][2];
-            if(l.ticks == time)
-                try {
-                    command(l, id);
-                } catch (e) {
-                }
+        var level = Game.Level[Game.currentLevel],
+ 			actions = level.TimeLine;
+
+        for( var a = 0; a < actions.length; a++) {
+			level.executeActionCommand(actions[a], level.ticks, level);
         }
-        if(l.ticks == l.levelEndTime) {
-            l.done = true;
+
+        if(level.ticks == level.levelEndTime) {
+            level.done = true;
         }
-        l.ticks++;
+        level.ticks++;
     }
     this.setEnemyMoveCommand = function(level, para) {
-        f = para[0];
-        functions = para[1];
-        funcX = functions[0];
-        paramX = functions[1];
-        funcY = functions[2];
-        paramY = functions[3];
+        var f = para[0],
+            functions = para[1],
+            funcX = functions[0],
+            paramX = functions[1],
+            funcY = functions[2],
+            paramY = functions[3];
         switch (funcX) {
             case undefined:
                 break;
@@ -92,14 +98,13 @@ function MasterLevel() {
         
     }
     this.createEnemy = function(anim, pos, relId, parameters, timeline) {
-        
-        f = new Enemy(this, this.lastId++, anim, pos[0], pos[1]);
+        var f = new Enemy(this, this.lastId++, anim, pos[0], pos[1]);
         f.params.fromArray(parameters);
         // TODO enemy position is relative to relID position, calculate
         if (relId != undefined) ;
        
         // reuse empty array-positions prior appending
-        found = false;
+        var found = false;
         for( var i = 0; i < this.Enemies.length; i++) {
             if(this.Enemies[i] == undefined) {
                 this.Enemies[i] = f;
@@ -111,8 +116,8 @@ function MasterLevel() {
             this.Enemies.push(f);
         
         // set enemy movement functions and register triggers
-        for ( i = 0; i < timeline.length; i++ ) {
-            t = new EnemyEvt();
+        for ( var i = 0; i < timeline.length; i++ ) {
+            var t = new EnemyEvt();
             t.moveX = timeline[i][0];
             t.paramX = timeline[i][1];
             t.moveY = timeline[i][2];
@@ -141,7 +146,7 @@ function MasterLevel() {
         return null;
     }
     this.addAvailableExtra = function (name, anim, probability) {
-        e = {};
+        var e = {};
         e.name = name;
         e.anim = anim;
         e.probability = probability;  

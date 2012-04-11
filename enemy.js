@@ -123,7 +123,7 @@ function Enemy(level, id, anim, x, y) {
         }
 
         rnd = Math.random();
-        //if (rnd > 0.4) return;      // no extra in 60% of the time
+        if (rnd > 0.4) return;      // no extra in 60% of the time
         this.setExtra(undefined);
         ex = this.level.Extras.sort(sortByProbability);
         for(var i = 0; i < ex.length; i++) {
@@ -189,16 +189,6 @@ function Enemy(level, id, anim, x, y) {
         this.time++;
         return [this.dx("x"), this.dy("y")]
     }
-    //this.move = function() {}
-    /*    this.integrateOverTime = function(time) {
-     x = this.x; y = this.y;
-     for (var i=0; i<time; i++) {
-     x += this.dx();
-     y += this.dy();
-     }
-     return [x,y];
-     }
-     */
     this.setMovementFunction = function(text) {
         switch (text) {
             case undefined:
@@ -247,53 +237,5 @@ function Enemy(level, id, anim, x, y) {
         s.active = true;
         s.enemy_shot = true;
     }
-    /*    this.preCalculateMovement = function() {
-     x = y = 0;
-     if(this.moveMethod == "normal") {
-     x = this.dx;
-     y = this.dy;
-     } else if(this.moveMethod == "down") {
-     y = this.dy;
-     } else if(this.moveMethod == "sine") {
-     if(this.moveSineVal <= -1.0)
-     this.moveSinePositiv = true;
-     if(this.moveSineVal >= 1.0)
-     this.moveSinePositiv = false;
-     if(this.moveSinePositiv)
-     this.moveSineVal += 0.1;
-     else
-     this.moveSineVal -= 0.1;
-     y = this.dy;
-     x = this.dx * Math.sin(this.moveSineVal);
-     } else if(this.moveMethod == "parabel") {
-     if(this.moveParabelVal <= 0.0)
-     this.moveParabelPositiv = true;
-     if(this.moveParabelVal >= 1.0)
-     this.moveParabelPositiv = false;
-     if(this.moveParabelPositiv)
-     this.moveParabelVal += 0.01;
-     else
-     this.moveParabelVal -= 0.01;
-     y = this.dy;
-     if(this.moveParabelPositiv)
-     x = this.dx * (this.moveParabelVal * this.moveParabelVal);
-     else
-     x = -1 * this.dx * (this.moveParabelVal * this.moveParabelVal);
-     } else if(this.moveMethod == "follow") {
-     // TODO this code seems not to work why
-     e = this.level.findEnemy(this.moveFollowId);
-     preCalc = e.preCalculateMovement();
-     x = preCalc[0];
-     y = preCalc[1];
-     }
-     return new Array(x, y);
-     }
-     this.move = function() {
-     preCalc = this.preCalculateMovement();
-     this.x += preCalc[0];
-     this.y += preCalc[1];
-     return this;
-     }
-     */
-
+ 
 }

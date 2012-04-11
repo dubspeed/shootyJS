@@ -44,7 +44,7 @@ function ParticleEffekt(level, centerX, centerY) {
     this.drawParticles = function(context) {
         for( j = 0; j < this.amount; j++) {
             p = this.particles[j];
-            context.drawImage(p.img, 0, 0, p.img.width, p.img.height, p.x, p.y, p.img.width, p.img.height);
+            context.drawImage(p.img, 0, 0, p.img.width, p.img.height, p.x, p.y-level.background_y, p.img.width, p.img.height);
         }
     }
     this.createParticles();

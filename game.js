@@ -43,7 +43,7 @@ Game.gameOver = function() {
 Game.intro = function() {
     window.clearInterval(Game.stateID);
     Game.stateID = window.setInterval(Game.gameIntroMainLoop, Game.fps);
-    window.setTimeout(Game.start, 10); //10000
+    window.setTimeout(Game.start, 10000); // 10 for debug
 }
 Game.loadNextLevel = function() {
     if(Game.currentLevel < Game.Level.length - 1) {
@@ -58,6 +58,10 @@ Game.loadNextLevel = function() {
 }
 Game.collide = function(obj1, obj2) {
     // Bounding Box collision
+	if(obj1.x == NaN || obj1.y == NaN)
+		return false;
+	if(obj2.x == NaN || obj2.y == NaN)
+		return false;
     if(obj1.y + obj1.h < obj2.y)
         return false;
     if(obj1.y > obj2.y + obj2.h)
@@ -218,14 +222,14 @@ Game.runningMainLoop = function() {
         Player.y--;
         if(Player.x < 0)
             Player.x = 0;
-        if(Player.x > 760)
-            Player.x = 760;
+        if(Player.x > 728)
+            Player.x = 728;
         if(Player.y < l.background_y)
             Player.y = l.background_y;
         if(Player.y > l.background_y + 560)
             Player.y = l.background_y + 560;
         if(Player.x + Player.dx >= 0 && 
-            Player.x + Player.dx <= 760 && 
+            Player.x + Player.dx <= 728 && 
             Player.y + Player.dy >= l.background_y && 
             Player.y + Player.dy <= l.background_y + 560) {
                 
@@ -244,22 +248,22 @@ Game.runningMainLoop = function() {
     Player.h = l.anims[Player.anim].frames[Player.animIndex].height;
 
     // Update shots
-    /*for( var i = 0; i < l.Enemies.length; i++) {
-     if(l.Enemies[i] == undefined)
-     continue;
-     e = l.Enemies[i];
-     e.shootingTimer++;
-     if(e.shootingTimer >= e.shootingFrequency) {
-     l.Enemies[i].doShooting(l.Enemies[i]);
-     e.shootingTimer = 0;
-     }
-     }
-     */
+    for( var i = 0; i < l.Enemies.length; i++) {
+   		if(l.Enemies[i] == undefined)
+   			continue;
+   		e = l.Enemies[i];
+   		e.shootingTimer++;
+   		if(e.shootingTimer >= e.shootingFrequency) {
+   			l.Enemies[i].doShooting(l.Enemies[i]);
+   			e.shootingTimer = 0;
+   		}	
+    }
+    
     for( var i = 0; i < MAXSHOTS; i++) {
         if(ActiveShots[i].active == false)
             continue;
         ActiveShots[i].y += ActiveShots[i].dy;
-        if(ActiveShots[i].y <= 0 || ActiveShots[i].y >= 600) {
+        if(ActiveShots[i].y <= 0 || ActiveShots[i].y - l.background_y >= 600) {
             ActiveShots[i].active = false;
             continue;
         }
@@ -282,8 +286,8 @@ Game.runningMainLoop = function() {
             if(e.state == "normal" && Game.collide(ActiveShots[i], e) && ActiveShots[i].enemy_shot == false) {
                 ActiveShots[i].active = false;
                 Player.points += e.points;
-                e.energy -= ActiveShots[i].energy;
-                if(e.energy <= 0) {
+                e.params.energy -= ActiveShots[i].energy;
+                if(e.params.energy <= 0) {
                     e.setState("explode");
                     l.Effects.push(new ParticleEffekt(l, e.x + e.w / 2, e.y + e.h / 2));
                     break;
@@ -336,7 +340,7 @@ Game.runningMainLoop = function() {
         if(ActiveShots[i].active == true) {
             _ = ActiveShots[i];
             frame = l.anims[_.anim].frames[_.animIndex];
-            Game.context.drawImage(frame, 0, 0, frame.width, frame.height, ActiveShots[i].x, ActiveShots[i].y, frame.width, frame.height);
+            Game.context.drawImage(frame, 0, 0, frame.width, frame.height, ActiveShots[i].x, ActiveShots[i].y - l.background_y , frame.width, frame.height);
         }
     }
 
@@ -385,8 +389,5 @@ Game.runningMainLoop = function() {
         }
     }
 
-    // draw Debug collsion rects
-    //Game.context.strokeRect(Player.x, Player.y, Player.w, Player.h);
-    //Game.context.strokeRect(Feind[0].x, Feind[0].y, Feind[0].w, Feind[0].h);
     return;
 }
