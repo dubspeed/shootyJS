@@ -43,7 +43,7 @@ Game.gameOver = function() {
 Game.intro = function() {
     window.clearInterval(Game.stateID);
     Game.stateID = window.setInterval(Game.gameIntroMainLoop, Game.fps);
-    window.setTimeout(Game.start, 10000); // 10 for debug
+    window.setTimeout(Game.start, 4000); // 10 for debug
 }
 Game.loadNextLevel = function() {
     if(Game.currentLevel < Game.Level.length - 1) {

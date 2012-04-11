@@ -103,6 +103,48 @@ Level.init = function() {
 	en49 = this.createEnemy('asteroid_4',[603.3563010662132, 8372.508821909918], undefined, [50, 200, false,600, 200, 'none', 'none', 'none'], [['noChange', 0,'linear', 2,0],]);
 
 	// enemy 1
-    en50 = this.createEnemy('enemy_1',[377, 7793], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],]);
+    en50 = this.createEnemy('enemy_1',[377, 7793], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', -2,'linear', 2,600]]);
+    en51 = this.createEnemy('enemy_1',[377, 7693], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', -2,'linear', 2,610]]);
+    en52 = this.createEnemy('enemy_1',[377, 7593], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', -2,'linear', 2,620]]);
+    en53 = this.createEnemy('enemy_1',[377, 7493], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', -2,'linear', 2,630]]);
+    en54 = this.createEnemy('enemy_1',[377, 7393], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', -2,'linear', 2,640]]);
+    en55 = this.createEnemy('enemy_1',[377, 7293], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', 2,'linear', 2,800]]);
+    en56 = this.createEnemy('enemy_1',[377, 7193], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', 2,'linear', 2,810]]);
+    en57 = this.createEnemy('enemy_1',[377, 7093], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', 2,'linear', 2,820]]);
+    en58 = this.createEnemy('enemy_1',[377, 6993], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', 2,'linear', 2,830]]);
+    en59 = this.createEnemy('enemy_1',[377, 6893], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', 2,'linear', 2,840]]);
+    en60 = this.createEnemy('enemy_1',[377, 6793], undefined, [100, 200, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 20,'linear', 2,0],['linear', 2,'linear', 2,850]]);
+
+	// enemy 2
+    en60 = this.createEnemy('enemy_2',[300, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],['noChange', 10,'linear', 1,1000]]);
+    en61 = this.createEnemy('enemy_2',[400, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],]);
+    en62 = this.createEnemy('enemy_2',[500, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],['noChange', 10,'linear', 1,1000]]);
+    en63 = this.createEnemy('enemy_2',[600, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],]);
+    en64 = this.createEnemy('enemy_2',[200, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],['noChange', 10,'linear', 1,1000]]);
+	en66 = this.createEnemy('enemy_2',[100, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],]);
+	
+	// enemy 3
+	en70 = this.createEnemy('enemy_3',[400, 6200], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 2,1150]]);
+	en71 = this.createEnemy('enemy_3',[300, 6100], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1150]]);
+	en72 = this.createEnemy('enemy_3',[500, 6100], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1150]]);
+	en73 = this.createEnemy('enemy_3',[200, 6000], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1150]]);
+	en73 = this.createEnemy('enemy_3',[600, 6000], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1150]]);
+
+	// enemy_6
+
+	en80 = this.createEnemy('enemy_6',[400, 5800], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 2,1250]]);
+	en81 = this.createEnemy('enemy_6',[250, 5800], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1250]]);
+	en82 = this.createEnemy('enemy_6',[550, 5800], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1250]]);
+	en83 = this.createEnemy('enemy_6',[100, 5800], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1250]]);
+	en83 = this.createEnemy('enemy_6',[650, 5800], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1250]]);
+
+	// enemy_7
+	en90 = this.createEnemy('enemy_7',[400, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 2,1150]]);
+	en91 = this.createEnemy('enemy_7',[300, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1150]]);
+	en92 = this.createEnemy('enemy_7',[500, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1150]]);
+	en93 = this.createEnemy('enemy_7',[200, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1150]]);
+	en93 = this.createEnemy('enemy_7',[600, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1150]]);
+	
+
 }
 Game.Level.push(Level);
