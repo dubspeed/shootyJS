@@ -191,7 +191,7 @@ Game.gameIntroMainLoop = function() {
 Game.runningMainLoop = function() {
     l = Game.Level[Game.currentLevel];
     Game.Level[Game.currentLevel].background_y--;
-        
+
     if(l.done == true) {
         Game.context.drawImage(l.levelComplete, 0, 0, 800, 600, 0, 0, 800, 600);
         window.clearInterval(Game.stateID);
@@ -228,11 +228,11 @@ Game.runningMainLoop = function() {
             Player.y = l.background_y;
         if(Player.y > l.background_y + 560)
             Player.y = l.background_y + 560;
-        if(Player.x + Player.dx >= 0 && 
-            Player.x + Player.dx <= 728 && 
-            Player.y + Player.dy >= l.background_y && 
+        if(Player.x + Player.dx >= 0 &&
+            Player.x + Player.dx <= 728 &&
+            Player.y + Player.dy >= l.background_y &&
             Player.y + Player.dy <= l.background_y + 560) {
-                
+
             Player.x += Player.dx;
             Player.y += Player.dy;
         }
@@ -256,9 +256,9 @@ Game.runningMainLoop = function() {
    		if(e.shootingTimer >= e.shootingFrequency) {
    			l.Enemies[i].doShooting(l.Enemies[i]);
    			e.shootingTimer = 0;
-   		}	
+   		}
     }
-    
+
     for( var i = 0; i < MAXSHOTS; i++) {
         if(ActiveShots[i].active == false)
             continue;
