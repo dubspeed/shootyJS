@@ -14,13 +14,13 @@ function EnemyEvt() {
         this.paramY = ar[3];
         this.time = ar[4];
         return this;
-    }
+    };
 }
 /*
  * Enemy Parameters
  */
 function EnemyParam() {
-    this.shooting = false; 
+    this.shooting = false;
     this.shootingFrequency = 600;
     this.shootingEnergy = 200;
     this.shootLeft = undefined;
@@ -37,8 +37,8 @@ function EnemyParam() {
         this.shootLeft = ar[5];
         this.shootMiddle = ar[6];
         this.shootRight = ar[7];
-        return this
-    }
+        return this;
+    };
 }
 /*
  * Enemies
@@ -60,7 +60,7 @@ function Enemy(level, id, anim, x, y) {
     this.animLoop = true;
     this.state = "normal";
     // normal || explode || extra
-    this.timeline = new Array();
+    this.timeline = [];
     this.setDefaults = function() {
         var t = new EnemyEvt();
         t.time = 0;
@@ -69,7 +69,7 @@ function Enemy(level, id, anim, x, y) {
         t.moveY = "noChange";
         t.paramY = 0;
         this.timeline.push(t);
-    }
+    };
     this.setDefaults();
     this.paramX = 0;
     this.paramY = 0;
@@ -97,32 +97,32 @@ function Enemy(level, id, anim, x, y) {
                 this.stateExtra();
                 break;
         }
-    }
+    };
     this.stateNormal = function() {
-    }
+    };
     this.stateExplode = function() {
         this.anim = "expl_small";
         this.shooting = false;
         this.energy = 0;
         this.animLoop = false;
-    }
+    };
     this.stateExtra = function() {
         this.anim = this.extra.anim;
         this.shooting = false;
         this.animLoop = true;
         this.dx = this.noChange;
         this.dy = this.linear;
-    }
+    };
     this.setExtra = function(type) {
         this.extra = type;
         return this;
-    }
+    };
     this.extraDropper = function() {
         function sortByProbability(a, b) {
             return a.probability - b.probability;
         }
 
-        rnd = Math.random();
+        var rnd = Math.random();
         if (rnd > 0.4) return;      // no extra in 60% of the time
         this.setExtra(undefined);
         ex = this.level.Extras.sort(sortByProbability);
@@ -133,33 +133,34 @@ function Enemy(level, id, anim, x, y) {
             }
         }
 
-    }
+    };
     if(this.level)
         this.extraDropper();
     this.noChange = function(axis) {
         return 0;
-    }
+    };
     this.linear = function(axis) {
         if(axis == "x")
             return this.paramX;
         return this.paramY;
-    }
+    };
     this.sine = function(axis) {
         if(axis == "x")
             amp = this.paramX;
         else
             amp = this.paramY;
         return Math.sin(this.time) * amp;
-    }
+    };
     this.parabel = function(axis) {
+        var amp, pval, pos;
         if(axis == "x") {
-            var amp = this.paramX;
-            var pval = this.moveParabelValX;
-            var pos = this.moveParabelPositivX;
+            amp = this.paramX;
+            pval = this.moveParabelValX;
+            pos = this.moveParabelPositivX;
         } else {
-            var amp = this.paramY;
-            var pval = this.moveParabelValY;
-            var pos = this.moveParabelPositivY;
+            amp = this.paramY;
+            pval = this.moveParabelValY;
+            pos = this.moveParabelPositivY;
         }
         if(pval <= 0.0)
             pos = true;
@@ -173,7 +174,7 @@ function Enemy(level, id, anim, x, y) {
             return (pval * pval) * amp;
         else
             return -1 * (pval * pval) * amp;
-    }
+    };
     this.dx = this.noChange;
     this.dy = this.noChange;
     this.tick = function() {
@@ -187,47 +188,43 @@ function Enemy(level, id, anim, x, y) {
             }
         }
         this.time++;
-        return [this.dx("x"), this.dy("y")]
-    }
+        return [this.dx("x"), this.dy("y")];
+    };
     this.setMovementFunction = function(text) {
         switch (text) {
             case undefined:
                 break;
             case "noChange":
                 return this.noChange;
-                break;
             case "linear":
                 return this.linear;
-                break;
             case "sine":
                 return this.sine;
-                break;
             case "parabel":
                 return this.parabel;
-                break;
         }
-    }
+    };
     this.shoot = function() {
         if(this.shooting)
             return this;
         this.shooting = true;
-        this.shootingTimerId = window.setInterval(this.doShooting, this.shootingFrequency, this);
+        this.shootingTimerId = utils.setInterval(this, this.doShooting, this.shootingFrequency, this);
         this.shootingTimer = 0;
         return this;
-    }
+    };
     this.doShooting = function(obj) {
-        if(obj.state != "normal" || obj.shooting == false) {
+        if(obj.state != "normal" || obj.shooting === false) {
             window.clearInterval(obj.shootingTimerId);
             return;
         }
         s = null;
         for(var i = 0; i < MAXSHOTS; i++) {
-            if(ActiveShots[i].active == false) {
+            if(ActiveShots[i].active === false) {
                 s = ActiveShots[i];
                 break;
             }
         }
-        if(s == null)
+        if(s === null)
             return;
         s.anim = obj.shootingAnim;
         s.dy = obj.shootingSpeed;
@@ -236,6 +233,6 @@ function Enemy(level, id, anim, x, y) {
         s.x = obj.x + (obj.w / 2) - (s.w / 2);
         s.active = true;
         s.enemy_shot = true;
-    }
- 
+    };
+
 }

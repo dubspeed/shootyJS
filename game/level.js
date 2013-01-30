@@ -27,8 +27,8 @@ function MasterLevel() {
         }
         this.anims[name].frameCount = frameCount - 1;
     }
-	this.executeActionCommand = function(action, currentTime, level) {
-		var time = action[0],
+    this.executeActionCommand = function(action, currentTime, level) {
+        var time = action[0],
             command = action[1],
             id = action[2];
         if(currentTime == time)
@@ -36,13 +36,13 @@ function MasterLevel() {
                 command(level, id);
             } catch (e) {
             }
-	}
+    }
     this.script = function() {
         var level = Game.Level[Game.currentLevel],
- 			actions = level.TimeLine;
+            actions = level.TimeLine;
 
         for( var a = 0; a < actions.length; a++) {
-			level.executeActionCommand(actions[a], level.ticks, level);
+            level.executeActionCommand(actions[a], level.ticks, level);
         }
 
         if(level.ticks == level.levelEndTime) {
@@ -95,14 +95,14 @@ function MasterLevel() {
                 f.moveParabelAmplitude = paramY;
                 break;
         }
-        
+
     }
     this.createEnemy = function(anim, pos, relId, parameters, timeline) {
         var f = new Enemy(this, this.lastId++, anim, pos[0], pos[1]);
         f.params.fromArray(parameters);
         // TODO enemy position is relative to relID position, calculate
         if (relId != undefined) ;
-       
+
         // reuse empty array-positions prior appending
         var found = false;
         for( var i = 0; i < this.Enemies.length; i++) {
@@ -114,7 +114,7 @@ function MasterLevel() {
         }
         if(found == false)
             this.Enemies.push(f);
-        
+
         // set enemy movement functions and register triggers
         for ( var i = 0; i < timeline.length; i++ ) {
             var t = new EnemyEvt();
@@ -126,7 +126,7 @@ function MasterLevel() {
             f.timeline.push(t);
             this.register(t.time, this.setEnemyMoveCommand, [f, timeline[i]]);
         }
-        
+
         return (this.lastId - 1);
     }
     this.removeEnemy = function(index) {
@@ -149,7 +149,7 @@ function MasterLevel() {
         var e = {};
         e.name = name;
         e.anim = anim;
-        e.probability = probability;  
-        this.Extras.push(e);  
+        e.probability = probability;
+        this.Extras.push(e);
     }
 }

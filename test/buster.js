@@ -1,0 +1,14 @@
+var config = module.exports;
+
+config.shooty = {
+    env: "browser",        // or "node"
+    rootPath: "../",
+    sources: [
+        "game/utils.js",
+        "game/sprite.js",
+        "game/**/*.js"
+    ],
+    tests: [
+        "test/*-test.js"
+    ]
+};

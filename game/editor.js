@@ -110,18 +110,18 @@ Editor.mainLoop = function() {
         if(en.params.shootLeft != undefined) {
             var idx = -1;
             for (var j = 0; j<e.shots.length; j++) {
-                if(e.shots[j][0] == en.params.shootLeft) idx = j; 
+                if(e.shots[j][0] == en.params.shootLeft) idx = j;
             }
             if (idx != -1 ) {
                 var w = e.shots[idx][1].width;
                 var h = e.shots[idx][1].height;
                 e.context.drawImage(e.shots[idx][1],  x + e.leftOffset, y - e.background_y);
-            }   
+            }
         }
         if(en.params.shootMiddle != undefined) {
             var idx = -1;
             for (var j = 0; j<e.shots.length; j++) {
-                if(e.shots[j][0] == en.params.shootMiddle) idx = j; 
+                if(e.shots[j][0] == en.params.shootMiddle) idx = j;
             }
             if (idx != -1 ) {
                 var w = e.shots[idx][1].width;
@@ -132,7 +132,7 @@ Editor.mainLoop = function() {
         if(en.params.shootRight != undefined) {
             var idx = -1;
             for (var j = 0; j<e.shots.length; j++) {
-                if(e.shots[j][0] == en.params.shootRight) idx = j; 
+                if(e.shots[j][0] == en.params.shootRight) idx = j;
             }
             if (idx != -1 ) {
                 var w = e.shots[idx][1].width;
@@ -481,14 +481,14 @@ Editor.randomAsteroids = function(x, y) {
 function start_editor() {
     canvas = document.getElementById('gcanvas');
     Editor.context = canvas.getContext('2d');
-    Editor.stateID = window.setInterval(Editor.mainLoop, Editor.fps);
+    Editor.stateID = utils.setInterval(Editor.mainLoop, Editor.fps);
     window.addEventListener('keydown', Editor.keyDownEvent, false);
     canvas.addEventListener('mousedown', Editor.mouseDownEvent, false);
     canvas.addEventListener('mouseup', Editor.mouseUpEvent, false);
     canvas.addEventListener('mousemove', Editor.mouseMoveEvent, false);
     document.getElementById('tab1').style.visibility = 'hidden';
     document.getElementById('tab2').style.visibility = 'visible';
-    
+
     for (var i = 0; i<Editor.shots.length; i++) {
         ol = document.getElementById("ed_shootLeft");
         om = document.getElementById("ed_shootMiddle");
@@ -503,7 +503,7 @@ function start_editor() {
         option.innerHTML = Editor.shots[i][0];
         or.appendChild(option);
     }
-    
+
 }
 
 function stop_editor() {
