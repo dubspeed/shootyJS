@@ -20,6 +20,25 @@
         return timeout( "setTimeout", context, callback, delay );
     };
 
+    global.utils.addOption = function( value, writable, enumerable ) {
+        return {
+            value: value,
+            writable: writable || true,
+            configurable: true,
+            enumerable: enumerable || true
+        };
+    };
+
+    global.utils.addMethod = function( func ) {
+        return {
+            value: func,
+            writable: true,         // needed for sinon.spy
+            configurable: true,
+            enumerable: false
+        };
+    };
+
+
 }( this ));
 
 

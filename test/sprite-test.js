@@ -35,41 +35,48 @@ buster.testCase("Sprite", {
         "ignores properties wich are not in the original object": function() {
             refute( this.sp1.setOptions( { haus: 1 } ).haus );
         }
-    },
+    }
+});
+
+buster.testCase("BlinkingSprite", {
     "blinking test:": {
         setUp: function() {
             this.clock = this.useFakeTimers();
-            this.sprite = Object.create( Sprite );
+            this.sprite = Object.create( BlinkingSprite );
         },
         "blink is an object": function() {
-            assert.isObject( this.sprite.blink );
+            assert.isObject( this.sprite);
         },
         "blink has some methods": function() {
-            assert.isFunction( this.sprite.blink.isBlinking );
-            assert.isFunction( this.sprite.blink.start );
-            assert.isFunction( this.sprite.blink.stop );
-        },
-        "should have private state": function() {
-            this.sprite.blink.start();
-            refute.defined( this.sprite.blink.on );
-            refute.defined( this.sprite.blink.state );
-            refute.defined( this.sprite.blink.freq );
-            refute.defined( this.sprite.blink.timeOut );
+            assert.isFunction( this.sprite.blink );
+            assert.isFunction( this.sprite.blinkStart );
+            assert.isFunction( this.sprite.blinkStop );
         },
         "should start and stop blinking": function() {
-            this.sprite.blink.start();
-            assert( this.sprite.blink.isBlinking() );
-            this.sprite.blink.stop();
-            refute( this.sprite.blink.isBlinking() );
+            this.sprite.blinkStart();
+            assert( this.sprite.isBlinking );
+            this.sprite.blinkStop();
+            refute( this.sprite.isBlinking );
         },
         "should have a stop callback": function() {
             var called=0;
             function stopCallback() {
                 called += 1;
             }
-            this.sprite.blink.start( 1000, 10000, stopCallback );
-            this.clock.tick(11000);
+            this.sprite.blinkStart( 1000, 10000, stopCallback );
+            this.clock.tick( 11000 );
             assert.equals( 1, called );
+        },
+        "stop callback should run with origin this": function() {
+            var testObj = null;
+            var sprite = Object.create( BlinkingSprite, {
+                stopCallback: { value: function() {
+                    testObj = this;
+                }, enumerable: true }
+            });
+            sprite.blinkStart( 1000, 10000, sprite.stopCallback );
+            this.clock.tick( 11000 );
+            assert.same( sprite, testObj );
         },
         "blinkint timer test:": {
             setUp: function() {
@@ -77,25 +84,25 @@ buster.testCase("Sprite", {
                 this.spy( utils, "setTimeout" );
                 this.spy( utils, "setInterval" );
                 this.spy( window, "clearInterval" );
-                this.sprite = Object.create( Sprite );
-                this.spy( this.sprite.blink, "stop" );
+                this.sprite = Object.create( BlinkingSprite );
+                this.spy( this.sprite, "blinkStop" );
             },
             "should set timer": function() {
-                this.sprite.blink.start( 1000, 10000 );
+                this.sprite.blinkStart( 1000, 10000 );
                 assert.calledOnce( utils.setTimeout );
                 this.clock.tick( 11000 );
-                assert.calledOnce( this.sprite.blink.stop );
+                assert.calledOnce( this.sprite.blinkStop );
             },
             "should blink a few times": function() {
-                this.sprite.blink.start( 1000, 10000 );
+                this.sprite.blinkStart( 1000, 10000 );
                 this.clock.tick( 3000 );
                 assert.calledOnce( utils.setInterval );
-                assert.equals( 3, this.sprite.blink._blinkCount() );
+                assert.equals( 3, this.sprite.blinkCount );
                 this.clock.tick( 6000 );
-                assert.equals( 9, this.sprite.blink._blinkCount() );
+                assert.equals( 9, this.sprite.blinkCount );
                 this.clock.tick( 2000 ); // 11000 -> stop called
-                assert.calledOnce( this.sprite.blink.stop );
-                assert.equals( 0, this.sprite.blink._blinkCount() );
+                assert.calledOnce( this.sprite.blinkStop );
+                assert.equals( 0, this.sprite.blinkCount );
             }
         }
 

@@ -8,7 +8,14 @@ function start_game() {
     }
     ShotsInit();
     Player.init(Game.Level[0], {
-        x: 400, y: 500
+        x: 400, y: 500,
+        speedX: 10, speedY: 10,
+        anim: "shooty",
+        lives: 3,
+        energy: 1000,
+        maxEnergy: 2500,
+        shooting: true,
+        shotFrequency: 300
     });
     Game.intro();
 }
@@ -363,7 +370,7 @@ var Game = {
         }
 
         // draw Player
-        if(Player.blink.blinkState() === false) {
+        if(Player.blinkState === false) {
             anim = l.anims[Player.anim];
             frame = anim.frames[Player.animIndex];
             this.context.drawImage(frame, 0, 0, frame.width, frame.height, Player.x, Player.y - l.background_y, Player.w, Player.h);
