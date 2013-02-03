@@ -35,6 +35,74 @@ buster.testCase("Sprite", {
         "ignores properties wich are not in the original object": function() {
             refute( this.sp1.setOptions( { haus: 1 } ).haus );
         }
+    },
+     "state machine": {
+        setUp: function() {
+            this.cb = {
+                explode: function() {  },
+                normal: function() {  }
+            };
+            this.spyNormal = this.spy( this.cb, "normal" );
+            this.sp = Object.create( window.Sprite );
+        },
+        "has a state property": function() {
+            assert.defined( this.sp.state );
+        },
+        "has a _states property": function() {
+            assert.isObject( this.sp._states );
+        },
+        "has a setState Method": function() {
+            assert.isFunction( this.sp.setState );
+        },
+        "has a addState Method": function() {
+            assert.isFunction( this.sp.addState );
+        },
+        "has a resetStates Methof": function () {
+            assert.isFunction( this.sp.resetStates );
+        },
+        "can not add a state twice": function() {
+            var that = this;
+            this.sp.addState( "normal", this.cb.normal );
+            assert.exception( function() {
+                that.sp.addState( "normal" );
+            });
+        },
+        "can set and query states": function() {
+            this.sp.resetStates();
+            this.sp.addState( "explode", this.cb.explode );
+            this.sp.addState( "normal", this.cb.normal );
+            this.sp.setState( "explode" );
+            assert.equals( this.sp.state, "explode" );
+            this.sp.setState( "normal" );
+            assert.equals( this.sp.state, "normal" );
+        },
+        "throws on wrong states": function() {
+            var that = this;
+            assert.exception( function() {
+                that.sp.setState( "nonsense" );
+            });
+        },
+        "calls a callback when a state is set": function() {
+            this.sp.resetStates();
+            this.sp.addState( "explode", this.cb.explode );
+            this.sp.addState( "normal", this.cb.normal );
+            this.sp.setState( "explode" );
+            this.sp.setState( "normal" );
+            assert.equals( this.spyNormal.callCount, 1 );
+        },
+        "calls the callback only once for one state": function() {
+            this.sp.resetStates();
+            this.sp.addState( "explode", this.cb.explode );
+            this.sp.addState( "normal", this.cb.normal );
+            this.sp.setState( "normal" );
+            this.sp.setState( "normal" );
+            assert.equals( this.spyNormal.callCount, 1 );
+        },
+        "resets all states": function () {
+            this.sp.addState( "explode", this.cb.explode );
+            this.sp.resetStates();
+            assert.equals( this.sp._states, window.utils.addOption( {} ) );
+        }
     }
 });
 

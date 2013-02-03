@@ -6,8 +6,7 @@ function start_game() {
     for( var i = 0; i < Game.Level.length; i++) {
         Game.Level[i].init();
     }
-    ShotsInit();
-    Player.init(Game.Level[0], {
+    player = Object.create( Player ).setOptions( {
         x: 400, y: 500,
         speedX: 10, speedY: 10,
         anim: "shooty",
@@ -15,7 +14,8 @@ function start_game() {
         energy: 1000,
         maxEnergy: 2500,
         shooting: true,
-        shotFrequency: 300
+        shotFrequency: 300,
+        state: "normal"
     });
     Game.intro();
 }
@@ -89,25 +89,25 @@ var Game = {
 
     animate : function() {
         var l = this.Level[this.currentLevel];
-        var anim = l.anims[Player.anim];
+        var anim = l.anims[player.anim];
         var e, i;
 
-        switch (Player.state) {
+        switch (player.state) {
             case "normal":
                 case "invul":
-                if(Player.animIndex < anim.frameCount)
-            Player.animIndex += 1;
+                if(player.animIndex < anim.frameCount)
+            player.animIndex += 1;
             else
-                Player.animIndex = 0;
+                player.animIndex = 0;
             break;
             case "explode":
-                if(Player.animIndex < anim.frameCount) {
-                Player.animIndex += 1;
+                if(player.animIndex < anim.frameCount) {
+                player.animIndex += 1;
             } else {
-                if(Player.lives === 0)
+                if(player.lives === 0)
                     this.gameOver();
                 else
-                    Player.setState("invul");
+                    player.setState("invul");
             }
             break;
         }
@@ -155,22 +155,22 @@ var Game = {
         switch (event.keyCode) {
             case 37:
                 // Left
-                Player.dx = -Player.speedX;
+                player.dx = -player.speedX;
             break;
 
             case 38:
                 // Up
-                Player.dy = -Player.speedY;
+                player.dy = -player.speedY;
             break;
 
             case 39:
                 // Right
-                Player.dx = Player.speedX;
+                player.dx = player.speedX;
             break;
 
             case 40:
                 // Down
-                Player.dy = Player.speedY;
+                player.dy = player.speedY;
             break;
         }
     },
@@ -180,13 +180,13 @@ var Game = {
             case 37:
                 // left & right
                 case 39:
-                Player.dx = 0;
+                player.dx = 0;
             break;
 
             case 38:
                 // Up and Down
                 case 40:
-                Player.dy = 0;
+                player.dy = 0;
             break;
         }
     },
@@ -241,36 +241,36 @@ var Game = {
             l.Enemies[i].h = l.anims[l.Enemies[i].anim].frames[l.Enemies[i].animIndex].height;
         }
 
-        if(Player.state == "normal" || Player.state == "invul") {
-            // Update Player position
+        if(player.state == "normal" || player.state == "invul") {
+            // Update player position
             // add "standard thrust" - move with y plane
-            Player.y--;
-            if(Player.x < 0)
-                Player.x = 0;
-            if(Player.x > 728)
-                Player.x = 728;
-            if(Player.y < l.background_y)
-                Player.y = l.background_y;
-            if(Player.y > l.background_y + 560)
-                Player.y = l.background_y + 560;
-            if(Player.x + Player.dx >= 0 &&
-               Player.x + Player.dx <= 728 &&
-                   Player.y + Player.dy >= l.background_y &&
-                       Player.y + Player.dy <= l.background_y + 560) {
+            player.y--;
+            if(player.x < 0)
+                player.x = 0;
+            if(player.x > 728)
+                player.x = 728;
+            if(player.y < l.background_y)
+                player.y = l.background_y;
+            if(player.y > l.background_y + 560)
+                player.y = l.background_y + 560;
+            if(player.x + player.dx >= 0 &&
+               player.x + player.dx <= 728 &&
+                   player.y + player.dy >= l.background_y &&
+                       player.y + player.dy <= l.background_y + 560) {
 
-                Player.x += Player.dx;
-                Player.y += Player.dy;
+                player.x += player.dx;
+                player.y += player.dy;
             }
-            Player.anim = "shooty";
-            if(Player.dx < 0) {
-                Player.anim = "shooty_left";
-            } else if(Player.dx > 0) {
-                Player.anim = "shooty_right";
+            player.anim = "shooty";
+            if(player.dx < 0) {
+                player.anim = "shooty_left";
+            } else if(player.dx > 0) {
+                player.anim = "shooty_right";
             }
         }
 
-        Player.w = l.anims[Player.anim].frames[Player.animIndex].width;
-        Player.h = l.anims[Player.anim].frames[Player.animIndex].height;
+        player.w = l.anims[player.anim].frames[player.animIndex].width;
+        player.h = l.anims[player.anim].frames[player.animIndex].height;
 
         // Update shots
         for( i = 0; i < l.Enemies.length; i++) {
@@ -293,13 +293,13 @@ var Game = {
                 continue;
             }
 
-            // Player collides with shot
-            if(Player.state == "normal" && this.collide(Player, ActiveShots[i]) && ActiveShots[i].enemy_shot === true) {
+            // player collides with shot
+            if(player.state == "normal" && this.collide(player, ActiveShots[i]) && ActiveShots[i].enemy_shot === true) {
                 ActiveShots[i].active = false;
-                Player.energy -= ActiveShots[i].energy;
-                if(Player.energy <= 0) {
-                    Player.setState("explode");
-                    l.Effects.push(new ParticleEffekt(l, Player.x + Player.w / 2, Player.y + Player.h / 2));
+                player.energy -= ActiveShots[i].energy;
+                if(player.energy <= 0) {
+                    player.setState("explode");
+                    l.Effects.push(new ParticleEffekt(l, player.x + player.w / 2, player.y + player.h / 2));
                 }
             }
 
@@ -310,7 +310,7 @@ var Game = {
                 e = l.Enemies[j];
                 if(e.state == "normal" && this.collide(ActiveShots[i], e) && ActiveShots[i].enemy_shot === false) {
                     ActiveShots[i].active = false;
-                    Player.points += e.points;
+                    player.points += e.points;
                     e.params.energy -= ActiveShots[i].energy;
                     if(e.params.energy <= 0) {
                         e.setState("explode");
@@ -323,27 +323,27 @@ var Game = {
             }
         }
 
-        // Detect Player - Enemy collisions
-        if(Player.state == "normal") {
+        // Detect player - Enemy collisions
+        if(player.state == "normal") {
             for( i = 0; i < l.Enemies.length; i++) {
                 if( !l.Enemies[i] )
                     continue;
                 e = l.Enemies[i];
-                if(!this.collide(Player, e))
+                if(!this.collide(player, e))
                     continue;
                 if(e.state == "normal") {
-                    Player.energy -= 500;
-                    if(Player.energy <= 0) {
-                        Player.setState("explode");
-                        l.Effects.push(new ParticleEffekt(l, Player.x + Player.w / 2, Player.y + Player.h / 2));
-                        Player.points += e.points;
+                    player.energy -= 500;
+                    if(player.energy <= 0) {
+                        player.setState("explode");
+                        l.Effects.push(new ParticleEffekt(l, player.x + player.w / 2, player.y + player.h / 2));
+                        player.points += e.points;
                     }
                     e.setState("explode");
                     l.Effects.push(new ParticleEffekt(l, e.x + e.w / 2, e.y + e.h / 2));
                 }
                 if(e.state == "extra") {
                     // apply extra to player
-                    Player.addExtra(e.extra.name);
+                    player.addExtra(e.extra.name);
                     l.removeEnemy(i);
                 }
             }
@@ -369,37 +369,37 @@ var Game = {
             }
         }
 
-        // draw Player
-        if(Player.blinkState === false) {
-            anim = l.anims[Player.anim];
-            frame = anim.frames[Player.animIndex];
-            this.context.drawImage(frame, 0, 0, frame.width, frame.height, Player.x, Player.y - l.background_y, Player.w, Player.h);
+        // draw playeplayer
+        if(player.blinkState === false) {
+            anim = l.anims[player.anim];
+            frame = anim.frames[player.animIndex];
+            this.context.drawImage(frame, 0, 0, frame.width, frame.height, player.x, player.y - l.background_y, player.w, player.h);
         }
         // draw Status + Lives
         w = l.statusBar.width;
         h = l.statusBar.height;
         this.context.drawImage(l.statusBar, 0, 0, w, h, 0, 0, w, h);
         frame = l.anims.shooty.frames[0];
-        for( i = 0; i < Player.lives; i++) {
+        for( i = 0; i < player.lives; i++) {
             this.context.drawImage(frame, 0, 0, frame.width, frame.height, (i * 20) + 10, 0, 20, 20);
         }
         this.context.fillStyle = this.fontColor;
         this.context.font = this.fontStyle;
-        this.context.fillText(Player.points.toString(), 200, 17);
+        this.context.fillText(player.points.toString(), 200, 17);
 
         // draw Energybar
         bar = l.energyBar;
-        proz = (Player.energy / Player.maxEnergy) * 100;
+        proz = (player.energy / player.maxEnergy) * 100;
         amount = (600 / 100) * proz;
         for( i = 600; i > 600 - amount; i--) {
             this.context.drawImage(bar, 0, 0, bar.width, bar.height, 0, i, bar.width, bar.height);
         }
 
         // draw Fireball bar
-        if(Player.shotFireball === true) {
+        if(player.shotFireball === true) {
             bar = l.fireballBar;
-            t = (new Date().getTime() - Player.shotFireballTime);
-            proz = (t / Player.shotFireballFrequency) * 100;
+            t = (new Date().getTime() - player.shotFireballTime);
+            proz = (t / player.shotFireballFrequency) * 100;
             amount = (600 / 100) * proz;
             for( i = 600; i > 600 - amount; i--) {
                 this.context.drawImage(bar, 0, 0, bar.width, bar.height, 800 - bar.width, i, bar.width, bar.height);

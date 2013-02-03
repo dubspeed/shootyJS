@@ -2,6 +2,11 @@
 Player = (function( global ) {
     "use strict";
 
+    // basic tasks of the Player object
+    // 1. state machine -> redundant with enemy / -> sprite /-> linked to animations
+    // 2. fire fireball and shots -> enemies can do, too -> sprite
+    // 3. movement ( in main)
+    //
     var addOption = global.utils.addOption;
     var addMethod = global.utils.addMethod;
     var ActiveShots = global.ActiveShots;
@@ -10,47 +15,41 @@ Player = (function( global ) {
     return Object.create( global.BlinkingSprite, {
         lives: addOption( 3 ),
         points: addOption( 0 ),
-        shotFireball : addOption( false ),
-        shotFireballId : addOption( null ),
-        shotFireballFrequency : addOption( 1200 ),
-        shotFireballTime : addOption( null ),
 
-        init: addMethod( function( level, options ) {
-            this.setOptions( options );
+        init: addMethod( function( ) {
             this.shotId = global.utils.setInterval(this, this.fireShot, this.shotFrequency);
+            this.addState( "normal", this.stateNormal );
+            this.addState( "explode", this.stateExplode );
+            this.addState( "invul", this.stateInvul );
+            return this;
+        }),
+        setLevel: addMethod( function( level ) {
             this.y += level.background_y;
         }),
         stopBlink: addMethod( function () {
             this.setState("normal");
         }),
-        setState : addMethod( function(state) {
-            this.state = state;
-            this.animIndex = 0;
-            switch (this.state) {
-                case "normal":
-                    this.stateNormal();
-                break;
-                case "explode":
-                    this.stateExplode();
-                break;
-                case "invul":
-                    this.stateInvul();
-                break;
-            }
-        }),
         stateNormal : addMethod( function () {
+            this.animIndex = 0;
             this.shooting = true;
         }),
         stateExplode : addMethod(  function () {
+            this.animIndex = 0;
             this.anim = "expl_small";
             this.lives -= 1;
         }),
         stateInvul : addMethod( function () {
+            this.animIndex = 0;
             this.energy = 1000;
             this.anim = "shooty";
             this.shooting = false;
             this.blinkStart( this.blinkFrequency, this.blinkTimeOut, this.stopBlink );
         }),
+
+        shotFireball : addOption( false ),
+        shotFireballId : addOption( null ),
+        shotFireballFrequency : addOption( 1200 ),
+        shotFireballTime : addOption( null ),
 
         fireFireball : addMethod( function() {
             var i, s1;

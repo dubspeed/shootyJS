@@ -22,7 +22,6 @@
         shootRight: addOption( null ),
         shotId: addOption( 0 ),
         doubleshot: addOption( false ),
-        state: addOption( "normal" ),
         init: addMethod( function( options ) {
             return this.setOptions( options );
         } ),
@@ -35,7 +34,25 @@
                 }
             }
             return this;
-        } )
+        } ),
+        state: addOption( null ),
+        _states: addOption( {} ),
+        addState: addMethod( function( state, callback ) {
+            if ( ! ( state in this._states ) )
+                Object.defineProperty( this._states, state, addOption( callback ) );
+            else
+                throw new Error( "State already added: " + state );
+        } ),
+        setState: addMethod( function( state ) {
+            if ( ! ( state in this._states ) )
+                throw new Error( "Can not set undefined state " + state );
+            if ( state === this.state ) return;
+            this.state = state;
+            this._states[ state ].apply( this, arguments );
+        } ),
+        resetStates: addMethod( function () {
+            this._states = addOption( {} );
+        })
     });
 
     global.BlinkingSprite = Object.create( global.Sprite, {

@@ -98,7 +98,14 @@ function MasterLevel() {
 
     }
     this.createEnemy = function(anim, pos, relId, parameters, timeline) {
-        var f = new Enemy(this, this.lastId++, anim, pos[0], pos[1]);
+        //var f = new Enemy(this, this.lastId++, anim, pos[0], pos[1]);
+        var f = Object.create( Enemy ).setOptions( {
+            level: this,
+            id: this.lastId ++,
+            anim: anim,
+            x: pos[0],
+            y: pos[1]
+        } );
         f.params.fromArray(parameters);
         // TODO enemy position is relative to relID position, calculate
         if (relId != undefined) ;
