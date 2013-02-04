@@ -1,4 +1,4 @@
-Level = new MasterLevel();
+Level = Object.create(MasterLevel);
 Level.name = "02";
 (Level.gameOver = new Image()).src = "gfx/game_over.png";
 (Level.levelComplete =  new Image()).src = "gfx/level_complete.png";
@@ -41,16 +41,16 @@ Level.init = function() {
     this.addAnim("asteroid_3", "gfx/asteroid_3/as3", "png", 1);
     this.addAnim("asteroid_4", "gfx/asteroid_4/as4", "png", 1);
     this.addAnim("asteroid_5", "gfx/asteroid_5/as5", "png", 1);
-     
+
     this.addAvailableExtra ("extra_energy", "extra_energy", 0.8);
     this.addAvailableExtra ("extra_doubleshot", "extra_doubleshot", 0.6);
     this.addAvailableExtra ("extra_live", "extra_live", 0.2);
     this.addAvailableExtra ("extra_fireball", "extra_fireball", 0.4);
-    
-    en1 = this.createEnemy ("enemy_6", [400, -20], undefined, 
+
+    en1 = this.createEnemy ("enemy_6", [400, -20], undefined,
         [["sine", undefined, 1, 0], [, 3, 0]], [100, 200, 0]);
-    
-    
-    
+
+
+
 }
 Game.Level.push(Level);

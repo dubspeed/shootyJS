@@ -9,19 +9,20 @@ Player = (function( global ) {
     //
     var addOption = global.utils.addOption;
     var addMethod = global.utils.addMethod;
-    var ActiveShots = global.ActiveShots;
-    var MAXSHOTS = global.MAXSHOTS;
+    var ActiveShots = global.ActiveShots.getInstance();
 
     return Object.create( global.BlinkingSprite, {
         lives: addOption( 3 ),
         points: addOption( 0 ),
 
         init: addMethod( function( ) {
-            this.shotId = global.utils.setInterval(this, this.fireShot, this.shotFrequency);
             this.addState( "normal", this.stateNormal );
             this.addState( "explode", this.stateExplode );
             this.addState( "invul", this.stateInvul );
             return this;
+        }),
+        startShooting: addMethod( function() {
+            this.shotId = global.utils.setInterval(this, this.fireShot, this.shotFrequency);
         }),
         setLevel: addMethod( function( level ) {
             this.y += level.background_y;
@@ -52,66 +53,47 @@ Player = (function( global ) {
         shotFireballTime : addOption( null ),
 
         fireFireball : addMethod( function() {
-            var i, s1;
-            s1 = null;
-            for( i = 0; i < MAXSHOTS; i++) {
-                if(ActiveShots[i].active === false) {
-                    s1 = i;
-                    break;
-                }
-            }
-            ActiveShots[s1].y = this.y - ActiveShots[s1].h;
-            ActiveShots[s1].x = this.x + (this.w / 2) - (ActiveShots[s1].w / 2);
-            ActiveShots[s1].active = true;
-            ActiveShots[s1].active = true;
-            ActiveShots[s1].anim = "shot_fireball";
-            ActiveShots[s1].dy = -5;
-            ActiveShots[s1].energy = 250;
-            ActiveShots[s1].enemy_shot = false;
+            var shot = Object.create( global.Shot );
+            shot.setOptions( {
+                y: this.y - shot.h,
+                x: this.x + (this.w / 2) - (shot.w / 2),
+                active: true,
+                anim: "shot_fireball",
+                dy: -5,
+                energy: 250,
+                enemy_shot: false
+            });
+            ActiveShots.push( shot );
             this.shotFireballTime = new Date().getTime();
         }),
         fireShot : addMethod( function() {
-            var s1, s2, i;
-            if(this.shooting === false)
-                return;
-            s1 = s2 = null;
-            for( i = 0; i < MAXSHOTS; i++) {
-                if(ActiveShots[i].active === false) {
-                    s1 = i;
-                    break;
-                }
-            }
-            if(this.doubleshot) {
-                for( i = 0; i < MAXSHOTS; i++) {
-                    if(ActiveShots[i].active === false && i != s1) {
-                        s2 = i;
-                        break;
-                    }
-                }
-            }
-            if(s1 !== null) {
-                ActiveShots[s1].y = this.y - ActiveShots[s1].h;
-                if(this.doubleshot)
-                    ActiveShots[s1].x = this.x + (this.w / 2) - (ActiveShots[s1].w / 2) + 10;
-                else
-                    ActiveShots[s1].x = this.x + (this.w / 2) - (ActiveShots[s1].w / 2);
-                ActiveShots[s1].active = true;
+            var shot1 = null,
+                shot2 = null;
+            if ( ! this.shooting ) return;
+            shot1 = Object.create( global.Shot );
+            shot1.setOptions( {
+                y: this.y - shot1.h,
+                x: this.x + ( this.w / 2 ) - ( shot1.w / 2 ),
+                active: true,
+                anim: "shot",
+                dy: -10,
+                energy: 50
+            });
 
-                ActiveShots[s1].anim = "shot";
-                ActiveShots[s1].dy = -10;
-                ActiveShots[s1].energy = 50;
-                ActiveShots[s1].enemy_shot = false;
+            if ( this.doubleshot ) {
+                shot1.x += 10;
+                shot2 = Object.create( global.Shot );
+                shot2.setOptions( {
+                    y: this.y - shot2.w,
+                    x: this.x + ( this.w / 2) - ( shot2.w / 2 ) + 10,
+                    active: true,
+                    anim: "shot",
+                    dy: -10,
+                    energy: 50
+                });
+                ActiveShots.push ( shot2 );
             }
-            if(s2 !== null) {
-                ActiveShots[s2].y = this.y - ActiveShots[s2].h;
-                ActiveShots[s2].x = this.x + (this.w / 2) - (ActiveShots[s2].w / 2) - 10;
-                ActiveShots[s2].active = true;
-
-                ActiveShots[s2].anim = "shot";
-                ActiveShots[s2].dy = -10;
-                ActiveShots[s2].energy = 50;
-                ActiveShots[s2].enemy_shot = false;
-            }
+            ActiveShots.push( shot1 );
         }),
         addExtra : addMethod( function(extraName) {
             if(extraName == "extra_live") {

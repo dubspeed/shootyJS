@@ -18,33 +18,28 @@
         enemy_shot: addOption( false )
     } );
 
-    global.ActiveShots = [];
-    global.MAXSHOTS = 70;
+    var activeShotsSingleton = Object.create( {}, {
+        index: addOption( 0, true, false),
+        dead: addOption( [], true, false),
+        push: addMethod( function( val ) {
+            this[ this.index.toString() ] = val;
+            this.index += 1;
+            return this.index - 1;
+        }),
+        kill: addMethod( function( id ) {
+            this.dead.push( id );
+        }),
+        cleanup: addMethod( function() {
+            for (var i = 0; i < this.dead.length; i++ ) {
+                delete this[ this.dead[i] ];
+            }
+            this.dead = [];
+        })
+    });
 
-    for( var i = 0; i < global.MAXSHOTS; i++ ) {
-        global.ActiveShots.push( Object.create( global.Shot ).init( {
-            anim: "shot",
-            dy: -10,
-            energy: 100
-        }) );
-    }
-
+    global.ActiveShots = Object.create( {}, {
+        getInstance: addMethod( function() { return activeShotsSingleton; } )
+    });
 }( this ));
 
-/* MAXSHOTS = 70;
-ActiveShots = [];
-function ShotsInit () {
-    for( var i = 0; i < MAXSHOTS; i++) {
-        ActiveShots[i] = {};
-        ActiveShots[i].animIndex = 0;
-        ActiveShots[i].anim = "shot";
-        ActiveShots[i].active = false;
-        ActiveShots[i].x = ActiveShots[i].y = 0;
-        ActiveShots[i].dy = -10;
-        ActiveShots[i].w = Game.Level[Game.currentLevel].anims.shot.frames[0].width;
-        ActiveShots[i].h = Game.Level[Game.currentLevel].anims.shot.frames[0].height;
-        ActiveShots[i].energy = 100;
-        ActiveShots[i].enemy_shot = false;
-    }
-}
-*/
+

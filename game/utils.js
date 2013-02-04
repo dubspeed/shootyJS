@@ -21,11 +21,12 @@
     };
 
     global.utils.addOption = function( value, writable, enumerable ) {
+        if ( typeof enumerable === "undefined" ) enumerable = false;
+        if ( typeof writable === "undefined" ) writable = true;
         return {
             value: value,
-            writable: writable || true,
-            configurable: true,
-            enumerable: enumerable || true
+            writable: writable,
+            enumerable: enumerable
         };
     };
 

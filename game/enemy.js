@@ -47,7 +47,6 @@ function EnemyParam() {
 
     var addOption = global.utils.addOption;
     var addMethod = global.utils.addMethod;
-    var MAXSHOTS = global.MAXSHOTS;
     var ActiveShots = global.ActiveShots;
 
     global.Enemy = Object.create( global.Sprite, {
@@ -210,22 +209,16 @@ function EnemyParam() {
                 global.clearInterval(obj.shootingTimerId);
                 return;
             }
-            var s = null;
-            for(var i = 0; i < MAXSHOTS; i++) {
-                if(ActiveShots[i].active === false) {
-                    s = ActiveShots[i];
-                    break;
-                }
-            }
-            if(s === null)
-                return;
-            s.anim = obj.shootingAnim;
-            s.dy = obj.shootingSpeed;
-            s.energy = obj.shootingEnergy;
-            s.y = obj.y - s.h;
-            s.x = obj.x + (obj.w / 2) - (s.w / 2);
-            s.active = true;
-            s.enemy_shot = true;
+            var s = Object.create( global.Shot );
+            s.setOptions( {
+                anim: obj.shootingAnim,
+                dy: obj.shootingSpeed,
+                energy: obj.shootingEnergy,
+                y: obj.y - s.h,
+                x: obj.x + (obj.w / 2) - (s.w / 2),
+                enemy_shot: true
+            });
+            ActiveShots.push( s );
         })
 
     });

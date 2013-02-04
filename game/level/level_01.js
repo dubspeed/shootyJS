@@ -1,4 +1,4 @@
-Level = new MasterLevel();
+Level = Object.create( MasterLevel );
 Level.name = "01";
 (Level.gameOver = new Image()).src = "gfx/game_over.png";
 (Level.levelComplete =  new Image()).src = "gfx/level_complete.png";
@@ -44,12 +44,12 @@ Level.init = function() {
     this.addAnim("asteroid_3", "gfx/asteroid_3/as3", "png", 1);
     this.addAnim("asteroid_4", "gfx/asteroid_4/as4", "png", 1);
     this.addAnim("asteroid_5", "gfx/asteroid_5/as5", "png", 1);
-     
+
     this.addAvailableExtra ("extra_energy", "extra_energy", 0.8);
     this.addAvailableExtra ("extra_doubleshot", "extra_doubleshot", 0.6);
     this.addAvailableExtra ("extra_live", "extra_live", 0.2);
     this.addAvailableExtra ("extra_fireball", "extra_fireball", 0.4);
-    
+
 	// ASTEROIDS
 	en0 = this.createEnemy('asteroid_1',[207, 8642], undefined, [50, 200, false,600, 200, 'none', 'none', 'none'], [['noChange', 0,'linear', 2,0]]);
 	en1 = this.createEnemy('asteroid_1',[279, 8636], undefined, [50, 200, false,600, 200, 'none', 'none', 'none'], [['noChange', 0,'linear', 3,0],]);
@@ -122,7 +122,7 @@ Level.init = function() {
     en63 = this.createEnemy('enemy_2',[600, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],]);
     en64 = this.createEnemy('enemy_2',[200, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],['noChange', 10,'linear', 1,1000]]);
 	en66 = this.createEnemy('enemy_2',[100, 6593], undefined, [100, 1000, true,600, 200, 'none', 'shot_1', 'none'], [['noChange', 0,'linear', 2,0],]);
-	
+
 	// enemy 3
 	en70 = this.createEnemy('enemy_3',[400, 6200], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 2,1150]]);
 	en71 = this.createEnemy('enemy_3',[300, 6100], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1150]]);
@@ -144,7 +144,7 @@ Level.init = function() {
 	en92 = this.createEnemy('enemy_7',[500, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 3,1150]]);
 	en93 = this.createEnemy('enemy_7',[200, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1150]]);
 	en93 = this.createEnemy('enemy_7',[600, 5600], undefined, [100, 1000, true,600, 200, 'shot_1', 'shot_1', 'shot_1'], [['noChange', 0,'linear', 2,0],['noChange', 0,'linear', 4,1150]]);
-	
+
 
 }
 Game.Level.push(Level);
