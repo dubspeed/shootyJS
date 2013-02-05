@@ -9,7 +9,7 @@
     var addMethod = global.utils.addMethod;
 
     global.MasterLevel = Object.create( {}, {
-        anims: addOption( [] ),
+        anims: addOption( {} ),
         intro: addOption( true ),
         done: addOption( false ),
         ticks: addOption( 0 ),
@@ -22,16 +22,19 @@
             this.TimeLine.push(new Array(time, command, id));
         }),
         addAnim: addMethod( function(name, prefix, suffix, frameCount) {
-            this.anims[name] = {};
-            this.anims[name].frames = new Array(frameCount);
-            for( var i = 0; i < frameCount; i++) {
-                this.anims[name].frames[i] = new global.Image();
-                if(i < 10)
-                    this.anims[name].frames[i].src = prefix + "_0" + i.toString() + "." + suffix;
-                else
-                    this.anims[name].frames[i].src = prefix + "_" + i.toString() + "." + suffix;
-            }
-            this.anims[name].frameCount = frameCount - 1;
+            if ( this.anims[ name] ) return;
+            this.anims[ name ] = Object.create( global.Animation );
+            this.anims[ name ].load( name, prefix, suffix, frameCount );
+            //this.anims[name] = {};
+            //this.anims[name].frames = new Array(frameCount);
+            //for( var i = 0; i < frameCount; i++) {
+                //this.anims[name].frames[i] = new global.Image();
+                //if(i < 10)
+                    //this.anims[name].frames[i].src = prefix + "_0" + i.toString() + "." + suffix;
+                //else
+                    //this.anims[name].frames[i].src = prefix + "_" + i.toString() + "." + suffix;
+            //}
+            //this.anims[name].frameCount = frameCount - 1;
         }),
         executeActionCommand: addMethod( function(action, currentTime, level) {
             var time = action[0],
@@ -112,7 +115,7 @@
                 x: pos[0],
                 y: pos[1]
             } );
-            f.params.fromArray(parameters);
+            f.fromArray(parameters);
             // TODO enemy position is relative to relID position, calculate
             if (relId !== undefined) ;
 
@@ -274,7 +277,7 @@ function MasterLevel() {
             x: pos[0],
             y: pos[1]
         } );
-        f.params.fromArray(parameters);
+        f.fromArray(parameters);
         // TODO enemy position is relative to relID position, calculate
         if (relId != undefined) ;
 

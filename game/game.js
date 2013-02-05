@@ -1,3 +1,4 @@
+/*jshint expr:true */
 /*
  * GLOBAL FUNCTIONS / ENTRY
  */
@@ -6,23 +7,18 @@ function start_game() {
     for( var i = 0; i < Game.Level.length; i++) {
         Game.Level[i].init();
     }
-    player = Object.create( Player ).setOptions( {
-        x: 400, y: 500,
-        speedX: 10, speedY: 10,
-        anim: "shooty",
-        lives: 3,
-        energy: 1000,
-        maxEnergy: 2500,
-        shooting: true,
-        shotFrequency: 300,
-        state: "normal"
-    });
-    player.startShooting();
-    Game.intro();
+    window.addEventListener('keydown', function( event ) {
+        Game.keyDownEvent.call( Game, event );
+    }, false);
+    window.addEventListener('keyup', function( event ) {
+        Game.keyUpEvent.call( Game, event );
+    }, false);
+        //Game.intro();
+    Game.start();
 }
 ( function( global ) {
 
-    var ActiveShots = global.ActiveShots.getInstance();
+
   /*
    * GAME
    */
@@ -35,19 +31,36 @@ function start_game() {
         nextLevelTimer : 3000,
         fontStyle : "bold 20px sans-serif",
         fontColor : "white",
+        activeShots: [],
+        stateID: null,
+        animateID: null,
+        levelScriptID: null,
+        playerShotID: null,
+        player: Object.create( Player ).setOptions( {
+            x: 400, y: 500,
+            speedX: 10, speedY: 10,
+            anim: "shooty",
+            lives: 3,
+            energy: 1000,
+            maxEnergy: 2500,
+            shooting: true,
+            shotFrequency: 300,
+            state: "normal"
+        }),
         init : function() {
             this.canvas = document.getElementById('gcanvas');
             this.context = this.canvas.getContext('2d');
-            window.addEventListener('keydown', this.keyDownEvent, false);
-            window.addEventListener('keyup', this.keyUpEvent, false);
+
         },
         start : function() {
             window.clearInterval(this.stateID);
             window.clearInterval(this.animateID);
             window.clearInterval(this.levelScriptID);
+            window.clearInterval(this.playerShotID);
             this.stateID = utils.setInterval(this, this.runningMainLoop, this.fps);
             this.animateID = utils.setInterval(this, this.animate, this.animationTimer);
             this.levelScriptID = utils.setInterval(this, this.Level[this.currentLevel].script, this.scriptTimer);
+            this.playerShotID = utils.setInterval(this, this.fireShot, this.player.shotFrequency);
         },
 
         gameOver : function() {
@@ -75,10 +88,10 @@ function start_game() {
 
         collide : function(obj1, obj2) {
             // Bounding Box collision
-            if( isNaN( obj1.x ) || isNaN( obj1.y ) )
-                return false;
-            if( isNaN( obj2.x ) || isNaN( obj2.y ) )
-                return false;
+            //if( isNaN( obj1.x ) || isNaN( obj1.y ) )
+                //return false;
+            //if( isNaN( obj2.x ) || isNaN( obj2.y ) )
+                //return false;
             if(obj1.y + obj1.h < obj2.y)
                 return false;
             if(obj1.y > obj2.y + obj2.h)
@@ -90,68 +103,37 @@ function start_game() {
             return true;
         },
 
+        fireShot: function() {
+            var shots = this.player.fireShot();
+            if ( shots.shot1 ) this.activeShots.push( shots.shot1 );
+            if ( shots.shot2 ) this.activeShots.push( shots.shot2 );
+        },
         animate : function() {
             var l = this.Level[this.currentLevel];
-            var anim = l.anims[player.anim];
+            var anim = l.anims[this.player.anim];
             var e, i;
             var shot, shotID;
 
-            switch (player.state) {
-                case "normal":
-                    case "invul":
-                    if(player.animIndex < anim.frameCount)
-                player.animIndex += 1;
-                else
-                    player.animIndex = 0;
-                break;
-                case "explode":
-                    if(player.animIndex < anim.frameCount) {
-                    player.animIndex += 1;
-                } else {
-                    if(player.lives === 0)
-                        this.gameOver();
-                    else
-                        player.setState("invul");
-                }
-                break;
+            this.player.animIndex = anim.next( this.player.animIndex );
+            if ( this.player.state === "explode" && anim.lastFrame ) {
+                ( this.player.lives === 0 ) ? this.gameOver() : this.player.setState( "invul" );
             }
 
             // animate shot
-            for ( shotID in ActiveShots ) {
-                shot = ActiveShots[ shotID ];
-                anim = l.anims[ shot.anim ];
-                if ( shot.animIndex < anim.frameCount )
-                    shot.animIndex += 1;
-                else
-                    shot.animIndex = 0;
-            }
+            this.activeShots.forEach( function( shot ) {
+                var anim = l.anims[ shot.anim ];
+                shot.animIndex = anim.next( shot.animIndex );
+            });
 
             // animate enemys
             for( i = 0; i < l.Enemies.length; i++) {
                 if ( !l.Enemies[i] )
                     continue;
                 e = l.Enemies[i];
-                anim = l.anims[e.anim];
-
-                switch (e.state) {
-                    case "normal":
-                        case "extra":
-                        if(e.animIndex < anim.frameCount) {
-                        e.animIndex += 1;
-                    } else {
-                        e.animIndex = 0;
-                    }
-                    break;
-                    case "explode":
-                        if(e.animIndex < anim.frameCount) {
-                        l.Enemies[i].animIndex += 1;
-                    } else {
-                        if ( e.extra )
-                            e.setState("extra");
-                        else
-                            l.removeEnemy(i);
-                    }
-                    break;
+                anim = l.anims[ e.anim ];
+                e.animIndex = anim.next( e.animIndex );
+                if ( e.state === "explode" ) {
+                    ( e.extra ) ? e.setState( "extra" ) : l.removeEnemy( i );
                 }
             }
         },
@@ -160,22 +142,22 @@ function start_game() {
             switch (event.keyCode) {
                 case 37:
                     // Left
-                    player.dx = -player.speedX;
+                    this.player.dx = -this.player.speedX;
                 break;
 
                 case 38:
                     // Up
-                    player.dy = -player.speedY;
+                    this.player.dy = -this.player.speedY;
                 break;
 
                 case 39:
                     // Right
-                    player.dx = player.speedX;
+                    this.player.dx = this.player.speedX;
                 break;
 
                 case 40:
                     // Down
-                    player.dy = player.speedY;
+                    this.player.dy = this.player.speedY;
                 break;
             }
         },
@@ -185,13 +167,13 @@ function start_game() {
                 case 37:
                     // left & right
                     case 39:
-                    player.dx = 0;
+                    this.player.dx = 0;
                 break;
 
                 case 38:
                     // Up and Down
                     case 40:
-                    player.dy = 0;
+                    this.player.dy = 0;
                 break;
             }
         },
@@ -243,40 +225,40 @@ function start_game() {
                     l.Enemies[i].x += cords[0];
                     l.Enemies[i].y += cords[1];
                 }
-                l.Enemies[i].w = l.anims[l.Enemies[i].anim].frames[l.Enemies[i].animIndex].width;
-                l.Enemies[i].h = l.anims[l.Enemies[i].anim].frames[l.Enemies[i].animIndex].height;
+                l.Enemies[i].w = l.anims[l.Enemies[i].anim][l.Enemies[i].animIndex].width;
+                l.Enemies[i].h = l.anims[l.Enemies[i].anim][l.Enemies[i].animIndex].height;
             }
 
-            if(player.state == "normal" || player.state == "invul") {
-                // Update player position
+            if(this.player.state == "normal" || player.state == "invul") {
+                // Update this.player position
                 // add "standard thrust" - move with y plane
-                player.y--;
-                if(player.x < 0)
-                    player.x = 0;
-                if(player.x > 728)
-                    player.x = 728;
-                if(player.y < l.background_y)
-                    player.y = l.background_y;
-                if(player.y > l.background_y + 560)
-                    player.y = l.background_y + 560;
-                if(player.x + player.dx >= 0 &&
-                   player.x + player.dx <= 728 &&
-                       player.y + player.dy >= l.background_y &&
-                           player.y + player.dy <= l.background_y + 560) {
+                this.player.y--;
+                if(this.player.x < 0)
+                    this.player.x = 0;
+                if(this.player.x > 728)
+                    this.player.x = 728;
+                if(this.player.y < l.background_y)
+                    this.player.y = l.background_y;
+                if(this.player.y > l.background_y + 560)
+                    this.player.y = l.background_y + 560;
+                if(this.player.x + this.player.dx >= 0 &&
+                   this.player.x + this.player.dx <= 728 &&
+                       this.player.y + this.player.dy >= l.background_y &&
+                           this.player.y + this.player.dy <= l.background_y + 560) {
 
-                    player.x += player.dx;
-                    player.y += player.dy;
+                    this.player.x += this.player.dx;
+                    this.player.y += this.player.dy;
                 }
-                player.anim = "shooty";
-                if(player.dx < 0) {
-                    player.anim = "shooty_left";
-                } else if(player.dx > 0) {
-                    player.anim = "shooty_right";
+                this.player.anim = "shooty";
+                if(this.player.dx < 0) {
+                    this.player.anim = "shooty_left";
+                } else if(this.player.dx > 0) {
+                    this.player.anim = "shooty_right";
                 }
             }
 
-            player.w = l.anims[player.anim].frames[player.animIndex].width;
-            player.h = l.anims[player.anim].frames[player.animIndex].height;
+            this.player.w = l.anims[this.player.anim][this.player.animIndex].width;
+            this.player.h = l.anims[this.player.anim][this.player.animIndex].height;
 
             // Update shots
             for( i = 0; i < l.Enemies.length; i++) {
@@ -289,23 +271,20 @@ function start_game() {
                     e.shootingTimer = 0;
                 }
             }
-
-            for( shotID in ActiveShots ) {
-                shot = ActiveShots[ shotID ];
+            this.activeShots.forEach( function( shot ) {
                 shot.y += shot.dy;
-                if ( shot.y <= 0 ) { //TODO|| shot.y - l.background_y >= 400 ) {
-                    //console.log( shotID );
-                    ActiveShots.kill( shotID );
-                    //continue;
+                if ( shot.y <= l.background_y ) { //TODO|| shot.y - l.background_y >= 400 ) {
+                    shot.active = false;
+                    return;
                 }
 
-                // player collides with shot
-                if(player.state == "normal" && this.collide(player, shot) && shot.enemy_shot === true) {
+                // this.player collides with shot
+                if(this.player.state == "normal" && this.collide(this.player, shot) && shot.enemy_shot === true) {
                     shot.active = false;
-                    player.energy -= shot.energy;
-                    if(player.energy <= 0) {
-                        player.setState("explode");
-                        l.Effects.push(new ParticleEffekt(l, player.x + player.w / 2, player.y + player.h / 2));
+                    this.player.energy -= shot.energy;
+                    if(this.player.energy <= 0) {
+                        this.player.setState("explode");
+                        l.Effects.push(new ParticleEffekt(l, this.player.x + this.player.w / 2, this.player.y + this.player.h / 2));
                     }
                 }
 
@@ -316,9 +295,9 @@ function start_game() {
                     e = l.Enemies[j];
                     if(e.state == "normal" && this.collide(shot. e) && shot.enemy_shot === false) {
                         shot.active = false;
-                        player.points += e.points;
-                        e.params.energy -= shot.energy;
-                        if(e.params.energy <= 0) {
+                        this.player.points += e.points;
+                        e.energy -= shot.energy;
+                        if(e.energy <= 0) {
                             e.setState("explode");
                             l.Effects.push(new ParticleEffekt(l, e.x + e.w / 2, e.y + e.h / 2));
                             break;
@@ -327,31 +306,34 @@ function start_game() {
                         }
                     }
                 }
-            }
+            }, this );
 
-            ActiveShots.cleanup();
+            // remove all inactive shots
+            this.activeShots = this.activeShots.filter( function( shot ) {
+                return shot.active;
+            } );
 
-            // Detect player - Enemy collisions
-            if(player.state == "normal") {
+            // Detect this.player - Enemy collisions
+            if(this.player.state == "normal") {
                 for( i = 0; i < l.Enemies.length; i++) {
                     if( !l.Enemies[i] )
                         continue;
                     e = l.Enemies[i];
-                    if(!this.collide(player, e))
+                    if(!this.collide(this.player, e))
                         continue;
                     if(e.state == "normal") {
-                        player.energy -= 500;
-                        if(player.energy <= 0) {
-                            player.setState("explode");
-                            l.Effects.push(new ParticleEffekt(l, player.x + player.w / 2, player.y + player.h / 2));
-                            player.points += e.points;
+                        this.player.energy -= 500;
+                        if(this.player.energy <= 0) {
+                            this.player.setState("explode");
+                            l.Effects.push(new ParticleEffekt(l, this.player.x + this.player.w / 2, this.player.y + this.player.h / 2));
+                            this.player.points += e.points;
                         }
                         e.setState("explode");
                         l.Effects.push(new ParticleEffekt(l, e.x + e.w / 2, e.y + e.h / 2));
                     }
                     if(e.state == "extra") {
-                        // apply extra to player
-                        player.addExtra(e.extra.name);
+                        // apply extra to this.player
+                        this.player.addExtra(e.extra.name);
                         l.removeEnemy(i);
                     }
                 }
@@ -365,47 +347,47 @@ function start_game() {
                     continue;
                 e = l.Enemies[i];
                 anim = l.anims[e.anim];
-                frame = anim.frames[e.animIndex];
+                frame = anim[e.animIndex];
                 this.context.drawImage(frame, 0, 0, frame.width, frame.height, e.x, e.y - l.background_y, e.w, e.h);
             }
             // draw Shots
-            for ( shotID in ActiveShots ) {
-                shot = ActiveShots[ shotID ];
-                frame = l.anims[shot.anim].frames[shot.animIndex];
+            for ( shotID in this.activeShots ) {
+                shot = this.activeShots[ shotID ];
+                frame = l.anims[shot.anim][shot.animIndex];
                 this.context.drawImage(frame, 0, 0, frame.width, frame.height, shot.x, shot.y - l.background_y , frame.width, frame.height);
             }
 
-            // draw playeplayer
-            if(player.blinkState === false) {
-                anim = l.anims[player.anim];
-                frame = anim.frames[player.animIndex];
-                this.context.drawImage(frame, 0, 0, frame.width, frame.height, player.x, player.y - l.background_y, player.w, player.h);
+            // draw playethis.player
+            if(this.player.blinkState === false) {
+                anim = l.anims[this.player.anim];
+                frame = anim[this.player.animIndex];
+                this.context.drawImage(frame, 0, 0, frame.width, frame.height, this.player.x, this.player.y - l.background_y, this.player.w, this.player.h);
             }
             // draw Status + Lives
             w = l.statusBar.width;
             h = l.statusBar.height;
             this.context.drawImage(l.statusBar, 0, 0, w, h, 0, 0, w, h);
-            frame = l.anims.shooty.frames[0];
-            for( i = 0; i < player.lives; i++) {
+            frame = l.anims.shooty[0];
+            for( i = 0; i < this.player.lives; i++) {
                 this.context.drawImage(frame, 0, 0, frame.width, frame.height, (i * 20) + 10, 0, 20, 20);
             }
             this.context.fillStyle = this.fontColor;
             this.context.font = this.fontStyle;
-            this.context.fillText(player.points.toString(), 200, 17);
+            this.context.fillText(this.player.points.toString(), 200, 17);
 
             // draw Energybar
             bar = l.energyBar;
-            proz = (player.energy / player.maxEnergy) * 100;
+            proz = (this.player.energy / this.player.maxEnergy) * 100;
             amount = (600 / 100) * proz;
             for( i = 600; i > 600 - amount; i--) {
                 this.context.drawImage(bar, 0, 0, bar.width, bar.height, 0, i, bar.width, bar.height);
             }
 
             // draw Fireball bar
-            if(player.shotFireball === true) {
+            if(this.player.shotFireball === true) {
                 bar = l.fireballBar;
-                t = (new Date().getTime() - player.shotFireballTime);
-                proz = (t / player.shotFireballFrequency) * 100;
+                t = (new Date().getTime() - this.player.shotFireballTime);
+                proz = (t / this.player.shotFireballFrequency) * 100;
                 amount = (600 / 100) * proz;
                 for( i = 600; i > 600 - amount; i--) {
                     this.context.drawImage(bar, 0, 0, bar.width, bar.height, 800 - bar.width, i, bar.width, bar.height);

@@ -18,28 +18,6 @@
         enemy_shot: addOption( false )
     } );
 
-    var activeShotsSingleton = Object.create( {}, {
-        index: addOption( 0, true, false),
-        dead: addOption( [], true, false),
-        push: addMethod( function( val ) {
-            this[ this.index.toString() ] = val;
-            this.index += 1;
-            return this.index - 1;
-        }),
-        kill: addMethod( function( id ) {
-            this.dead.push( id );
-        }),
-        cleanup: addMethod( function() {
-            for (var i = 0; i < this.dead.length; i++ ) {
-                delete this[ this.dead[i] ];
-            }
-            this.dead = [];
-        })
-    });
-
-    global.ActiveShots = Object.create( {}, {
-        getInstance: addMethod( function() { return activeShotsSingleton; } )
-    });
 }( this ));
 
 

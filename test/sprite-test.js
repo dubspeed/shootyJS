@@ -1,5 +1,61 @@
 // Tests für ein Sprite
 
+buster.testCase("Animation", {
+    setUp: function() {
+        this.anim = Object.create( Animation );
+        this.stub( window, "Image" );
+    },
+    "has all properties and methods": function() {
+        assert.isFunction( this.anim.load );
+        assert.defined( this.anim.length );
+        assert.isFunction( this.anim.next );
+    },
+    "tries to load images ascny": function( ) {
+        this.anim.load( "test", "test", "gif", 1 );
+        assert.equals( this.anim._name, "test" );
+        assert.equals( this.anim._suffix, "gif" );
+        assert.equals( this.anim._prefix, "test" );
+        assert.defined( this.anim[0] );
+        assert.equals( this.anim[0].src, "test_00.gif" );
+    },
+    "only enumerates the images": function() {
+        var count = 0;
+        this.anim.load( "test", "test", "gif", 1 );
+        for (var prop in this.anim ) {
+            count++;
+        }
+        assert.equals( 1, count );
+        assert.equals( count, this.anim.length );
+    },
+    "next() loops over the images": function() {
+        this.anim.load( "test", "test", "png", 2 );
+        var idx = 0;
+        idx = this.anim.next( idx );
+        assert.equals( idx, 1 );
+        idx = this.anim.next( idx );
+        assert.equals( idx, 0 );
+        //assert.equals( this.anim.next( idx ), 1 );
+        //assert.equals( this.anim.next( idx ), 0 );
+    },
+    "next() throws if animation is not loaded": function() {
+        var that = this;
+        assert.exception( function() {
+            that.anim.next();
+        });
+    },
+    "lastFrame is true only on the last animation frame": function() {
+        this.anim.load( "test", "test", "png", 2 );
+        var idx = 0;
+        refute( this.anim.lastFrame );
+        idx = this.anim.next( idx );
+        refute( this.anim.lastFrame );
+        idx = this.anim.next( idx );
+        assert( this.anim.lastFrame );
+        idx = this.anim.next( idx );
+        refute( this.anim.lastFrame );
+    }
+});
+
 buster.testCase("Sprite", {
     "should exist": function() {
         assert( window.Sprite );

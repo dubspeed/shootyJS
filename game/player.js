@@ -9,7 +9,6 @@ Player = (function( global ) {
     //
     var addOption = global.utils.addOption;
     var addMethod = global.utils.addMethod;
-    var ActiveShots = global.ActiveShots.getInstance();
 
     return Object.create( global.BlinkingSprite, {
         lives: addOption( 3 ),
@@ -63,8 +62,8 @@ Player = (function( global ) {
                 energy: 250,
                 enemy_shot: false
             });
-            ActiveShots.push( shot );
             this.shotFireballTime = new Date().getTime();
+            return shot;
         }),
         fireShot : addMethod( function() {
             var shot1 = null,
@@ -91,9 +90,8 @@ Player = (function( global ) {
                     dy: -10,
                     energy: 50
                 });
-                ActiveShots.push ( shot2 );
             }
-            ActiveShots.push( shot1 );
+            return { shot1: shot1, shot2: shot2 };
         }),
         addExtra : addMethod( function(extraName) {
             if(extraName == "extra_live") {

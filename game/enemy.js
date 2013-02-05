@@ -20,44 +20,43 @@ function EnemyEvt() {
 /*
  * Enemy Parameters
  */
-function EnemyParam() {
-    this.shooting = false;
-    this.shootingFrequency = 600;
-    this.shootingEnergy = 200;
-    this.shootLeft = undefined;
-    this.shootMiddle = undefined;
-    this.shootRight = undefined;
-    this.energy = 0;
-    this.points = 0;
-    this.fromArray = function(ar) {
-        this.points = ar[0];
-        this.energy = ar[1];
-        this.shooting = ar[2];
-        this.shootingFrequency = ar[3];
-        this.shootingEnergy = ar[4];
-        this.shootLeft = ar[5];
-        this.shootMiddle = ar[6];
-        this.shootRight = ar[7];
-        return this;
-    };
-}
+//function EnemyParam() {
+    //this.shooting = false;
+    //this.shootingFrequency = 600;
+    //this.shootingEnergy = 200;
+    //this.shootLeft = undefined;
+    //this.shootMiddle = undefined;
+    //this.shootRight = undefined;
+    //this.energy = 0;
+    //this.points = 0;
+    //this.fromArray = function(ar) {
+        //this.points = ar[0];
+        //this.energy = ar[1];
+        //this.shooting = ar[2];
+        //this.shootingFrequency = ar[3];
+        //this.shootingEnergy = ar[4];
+        //this.shootLeft = ar[5];
+        //this.shootMiddle = ar[6];
+        //this.shootRight = ar[7];
+        //return this;
+    //};
+//}
 
 ( function( global ) {
     "use strict";
 
     var addOption = global.utils.addOption;
     var addMethod = global.utils.addMethod;
-    var ActiveShots = global.ActiveShots;
 
     global.Enemy = Object.create( global.Sprite, {
         level: addOption( null ),
         id: addOption( 0 ),
         time: addOption( 0 ),
         w: { get: function() {
-            return this.level && this.anim && this.level.anims[ this.anim ].frames[ 0 ].width;
+            return this.level && this.anim && this.level.anims[ this.anim ][ 0 ].width;
         } },
         h: { get: function() {
-            return this.level && this.anim && this.level.anims[ this.anim ].frames[ 0 ].height;
+            return this.level && this.anim && this.level.anims[ this.anim ][ 0 ].height;
         } },
         animLoop: addOption( true ),
         timeline: addOption( [] ),
@@ -113,7 +112,17 @@ function EnemyParam() {
         shootingAnim : addOption( "enemy_shot" ),
         shootingSpeed : addOption( 15 ),
         shootingTimer : addOption( 0 ),
-        params : addOption( new EnemyParam() ),
+        points : addOption( 0 ),
+        fromArray : addMethod( function(ar) {
+            this.points = ar[0];
+            this.energy = ar[1];
+            this.shooting = ar[2];
+            this.shootingFrequency = ar[3];
+            this.shootingEnergy = ar[4];
+            this.shootLeft = ar[5];
+            this.shootMiddle = ar[6];
+            this.shootRight = ar[7];
+        }),
         extraDropper: addMethod( function() {
             function sortByProbability(a, b) {
                 return a.probability - b.probability;
@@ -218,7 +227,7 @@ function EnemyParam() {
                 x: obj.x + (obj.w / 2) - (s.w / 2),
                 enemy_shot: true
             });
-            ActiveShots.push( s );
+            return s;
         })
 
     });
@@ -238,8 +247,8 @@ function Enemy(level, id, anim, x, y) {
     // current object time
     this.anim = anim;
     if(this.level) {
-        this.w = this.level.anims[this.anim].frames[0].width;
-        this.h = this.level.anims[this.anim].frames[0].height;
+        this.w = this.level.anims[this.anim][0].width;
+        this.h = this.level.anims[this.anim][0].height;
     }
     this.animIndex = 0;
     this.animLoop = true;

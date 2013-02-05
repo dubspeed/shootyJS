@@ -7,6 +7,7 @@ config.shooty = {
         "game/utils.js",
         "game/sprite.js",
         "game/shots.js",
+        "game/player.js",
         "game/**/*.js"
     ],
     tests: [

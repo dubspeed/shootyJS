@@ -1,8 +1,35 @@
+/*jshint expr:true */
 (function( global ) {
     "use strict";
 
     var addOption = global.utils.addOption;
     var addMethod = global.utils.addMethod;
+    var prop = Object.defineProperty;
+
+    global.Animation = Object.create( {}, {
+        length: addOption( 0, true, false ),
+        load: addMethod( function( name, prefix, suffix, count ) {
+            var filler;
+            prop( this, "_name", addOption( name, true, false) );
+            prop( this, "_prefix", addOption( prefix, true, false) );
+            prop( this, "_suffix", addOption( suffix, true, false) );
+            for( var i = 0; i < count; i++) {
+                ( i < 10 ) ? filler = "_0" : filler = "_";
+                this[ i ] = new global.Image();
+                this[ i ].src = prefix + filler + i + "." + suffix;
+            }
+            prop( this, "length", addOption( count, true, false) );
+            prop( this, "lastFrame", addOption( false, true, false) );
+        }),
+        next: addMethod( function( current ) {
+            if ( !this._name ) throw new Error("Animation not loaded");
+            if ( current === this.length - 1) {
+                this.lastFrame = true;
+                current = -1;
+            } else this.lastFrame = false;
+            return current + 1;
+        })
+    });
 
     global.Sprite = Object.create({}, {
         x: addOption( 0 ),
