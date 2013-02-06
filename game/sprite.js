@@ -52,6 +52,9 @@
         init: addMethod( function( options ) {
             return this.setOptions( options );
         } ),
+        toString: addMethod( function() {
+            return "Sprite";
+        } ),
         // TODO: not compiler safe -> the compiler may have renamed the properties
         // they are not named the same
         setOptions: addMethod( function( options ) {
@@ -63,8 +66,10 @@
             return this;
         } ),
         state: addOption( null ),
-        _states: addOption( {} ),
         addState: addMethod( function( state, callback ) {
+            if ( ! this._states ) {
+                Object.defineProperty( this, "_states", addOption( {} ) );
+            }
             if ( ! ( state in this._states ) )
                 Object.defineProperty( this._states, state, addOption( callback ) );
             else

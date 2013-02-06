@@ -49,6 +49,9 @@ function EnemyEvt() {
     var addMethod = global.utils.addMethod;
 
     global.Enemy = Object.create( global.Sprite, {
+        toString: addMethod( function() {
+            return "Enemy";
+        }),
         level: addOption( null ),
         id: addOption( 0 ),
         time: addOption( 0 ),
@@ -81,6 +84,7 @@ function EnemyEvt() {
             this.addState( "normal", this.stateNormal );
             this.addState( "explode", this.stateExplode );
             this.addState( "extra", this.stateExtra );
+            this.setState( "normal" );
             if ( this.level ) this.extraDropper();
             this.dx = this.noChange;
             this.dy = this.noChange;

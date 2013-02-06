@@ -90,6 +90,9 @@ buster.testCase("Sprite", {
         },
         "ignores properties wich are not in the original object": function() {
             refute( this.sp1.setOptions( { haus: 1 } ).haus );
+        },
+        "toString() returns 'Sprite' ": function() {
+            assert.equals( Sprite.toString(), "Sprite" );
         }
     },
      "state machine": {
@@ -104,7 +107,9 @@ buster.testCase("Sprite", {
         "has a state property": function() {
             assert.defined( this.sp.state );
         },
-        "has a _states property": function() {
+        "has a _states once you add a state": function() {
+            refute.isObject( this.sp._states );
+            this.sp.addState( "normal", function() {} );
             assert.isObject( this.sp._states );
         },
         "has a setState Method": function() {
@@ -113,7 +118,7 @@ buster.testCase("Sprite", {
         "has a addState Method": function() {
             assert.isFunction( this.sp.addState );
         },
-        "has a resetStates Methof": function () {
+        "has a resetStates Method": function () {
             assert.isFunction( this.sp.resetStates );
         },
         "can not add a state twice": function() {

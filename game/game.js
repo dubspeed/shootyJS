@@ -44,13 +44,12 @@ function start_game() {
             energy: 1000,
             maxEnergy: 2500,
             shooting: true,
-            shotFrequency: 300,
-            state: "normal"
+            shotFrequency: 300
         }),
         init : function() {
             this.canvas = document.getElementById('gcanvas');
             this.context = this.canvas.getContext('2d');
-
+            this.player.init();
         },
         start : function() {
             window.clearInterval(this.stateID);
@@ -61,6 +60,7 @@ function start_game() {
             this.animateID = utils.setInterval(this, this.animate, this.animationTimer);
             this.levelScriptID = utils.setInterval(this, this.Level[this.currentLevel].script, this.scriptTimer);
             this.playerShotID = utils.setInterval(this, this.fireShot, this.player.shotFrequency);
+            this.player.setLevel( this.Level[ this.currentLevel ] );
         },
 
         gameOver : function() {
@@ -229,7 +229,7 @@ function start_game() {
                 l.Enemies[i].h = l.anims[l.Enemies[i].anim][l.Enemies[i].animIndex].height;
             }
 
-            if(this.player.state == "normal" || player.state == "invul") {
+            if(this.player.state == "normal" || this.player.state == "invul") {
                 // Update this.player position
                 // add "standard thrust" - move with y plane
                 this.player.y--;
@@ -293,7 +293,7 @@ function start_game() {
                         continue;
                     // Enemy collides with shot
                     e = l.Enemies[j];
-                    if(e.state == "normal" && this.collide(shot. e) && shot.enemy_shot === false) {
+                    if(e.state == "normal" && this.collide(shot, e) && shot.enemy_shot === false) {
                         shot.active = false;
                         this.player.points += e.points;
                         e.energy -= shot.energy;
@@ -357,8 +357,8 @@ function start_game() {
                 this.context.drawImage(frame, 0, 0, frame.width, frame.height, shot.x, shot.y - l.background_y , frame.width, frame.height);
             }
 
-            // draw playethis.player
-            if(this.player.blinkState === false) {
+            // draw player
+            if( ! this.player.blinkState ) {
                 anim = l.anims[this.player.anim];
                 frame = anim[this.player.animIndex];
                 this.context.drawImage(frame, 0, 0, frame.width, frame.height, this.player.x, this.player.y - l.background_y, this.player.w, this.player.h);

@@ -18,6 +18,7 @@ Player = (function( global ) {
             this.addState( "normal", this.stateNormal );
             this.addState( "explode", this.stateExplode );
             this.addState( "invul", this.stateInvul );
+            this.setState( "normal" );
             return this;
         }),
         startShooting: addMethod( function() {
@@ -68,7 +69,7 @@ Player = (function( global ) {
         fireShot : addMethod( function() {
             var shot1 = null,
                 shot2 = null;
-            if ( ! this.shooting ) return;
+            if ( ! this.shooting ) return {};
             shot1 = Object.create( global.Shot );
             shot1.setOptions( {
                 y: this.y - shot1.h,
