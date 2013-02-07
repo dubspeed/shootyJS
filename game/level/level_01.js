@@ -2,7 +2,7 @@ Level = Object.create( MasterLevel );
 Level.name = "01";
 (Level.gameOver = new Image()).src = "gfx/game_over.png";
 (Level.levelComplete =  new Image()).src = "gfx/level_complete.png";
-(Level.bg = new Image()).src = "gfx/level1_bg.png";
+(Level.bg = new Image()).src = "gfx/level1_tile_bg.png";
 (Level.energyBar = new Image()).src = "gfx/energybar.png";
 (Level.fireballBar = new Image()).src = "gfx/fireball_timer.png";
 (Level.statusBar = new Image()).src = "gfx/statusbar.png";
@@ -12,7 +12,6 @@ Level.ParticleGfx.push( img );
 (img = new Image()).src = "gfx/particles/particle_2.png";
 Level.ParticleGfx.push( img );
 
-Level.background_y = 9400;  // TODO add Screen size
 Level.levelEndTime = 30;    // ticks
 
 Level.introText = new Array();
@@ -22,7 +21,8 @@ Level.introText.push("");
 Level.introText.push("Use your arrow keys to control the ship,");
 Level.introText.push("collect extras to improve shields and firepower!");
 
-Level.init = function() {
+Level.init = function( canvas ) {
+    this.background_y = 10000;
     this.addAnim("expl_small", "gfx/explo_small/explo", "png", 5);
     this.addAnim("shooty", "gfx/shooty/shooty", "png", 1);
     this.addAnim("shooty_left", "gfx/shooty_left/shooty_left", "png", 1);
@@ -147,4 +147,4 @@ Level.init = function() {
 
 
 }
-Game.Level.push(Level);
+game.Level.push(Level);

@@ -18,6 +18,7 @@
         Extras: addOption( [] ),
         Effects: addOption( [] ),
         lastId: addOption( 0 ),
+        background_y: addOption( 0 ),
         register: addMethod(  function(time, command, id) {
             this.TimeLine.push(new Array(time, command, id));
         }),
@@ -37,7 +38,7 @@
                 }
         }),
         script: addMethod( function() {
-            var level = global.Game.Level[global.Game.currentLevel],
+            var level = global.game.Level[global.game.currentLevel],
             actions = level.TimeLine;
 
             for( var a = 0; a < actions.length; a++) {

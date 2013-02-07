@@ -2,27 +2,41 @@
 /*
  * GLOBAL FUNCTIONS / ENTRY
  */
+
+
+function adjustCanvas() {
+    var canvas = document.getElementById('gcanvas');
+    canvas.width = window.innerWidth;
+    canvas.height = document.height;
+    return canvas;
+}
+
 function start_game() {
-    Game.init();
-    for( var i = 0; i < Game.Level.length; i++) {
-        Game.Level[i].init();
+    // set canvas to window height
+    var canvas = adjustCanvas();
+    game.init( canvas );
+    for( var i = 0; i < game.Level.length; i++) {
+        game.Level[i].init( canvas );
     }
     window.addEventListener('keydown', function( event ) {
-        Game.keyDownEvent.call( Game, event );
+        game.keyDownEvent.call( game, event );
     }, false);
     window.addEventListener('keyup', function( event ) {
-        Game.keyUpEvent.call( Game, event );
+        game.keyUpEvent.call( game, event );
     }, false);
-        //Game.intro();
-    Game.start();
+    window.addEventListener('resize', function( event ) {
+        game.resize( adjustCanvas() );
+    }, false);
+        //game.intro();
+    game.start();
 }
+
+/*
+ * GAME
+ */
 ( function( global ) {
 
-
-  /*
-   * GAME
-   */
-    global.Game = {
+    global.game = {
         fps : 1000 / 50,
         animationTimer : 100,
         scriptTimer : 1000,
@@ -48,10 +62,14 @@ function start_game() {
             blinkFrequency: 100,
             blinkTimeOut: 1500
         }),
-        init : function() {
-            this.canvas = document.getElementById('gcanvas');
+        init : function( canvas ) {
+            this.canvas = canvas;
             this.context = this.canvas.getContext('2d');
             this.player.init();
+        },
+        resize: function( canvas ) {
+            this.canvas = canvas;
+            this.context = this.canvas.getContext('2d');
         },
         start : function() {
             this.stop();
@@ -82,7 +100,7 @@ function start_game() {
         loadNextLevel : function() {
             if(this.currentLevel < this.Level.length - 1) {
                 this.currentLevel++;
-                this.Level[this.currentLevel].init();
+                this.Level[this.currentLevel].init( this.canvas );
                 this.intro();
             } else {
                 this.gameOver();
@@ -91,11 +109,6 @@ function start_game() {
         },
 
         collide : function(obj1, obj2) {
-            // Bounding Box collision
-            //if( isNaN( obj1.x ) || isNaN( obj1.y ) )
-                //return false;
-            //if( isNaN( obj2.x ) || isNaN( obj2.y ) )
-                //return false;
             if(obj1.y + obj1.h < obj2.y)
                 return false;
             if(obj1.y > obj2.y + obj2.h)
@@ -176,14 +189,17 @@ function start_game() {
         },
 
         gameOverMainLoop : function() {
-            this.context.drawImage(this.Level[this.currentLevel].gameOver, 0, 0, 800, 600, 0, 0, 800, 600);
+            var img = this.Level[this.currentLevel].gameOver;
+            var x = Math.floor( ( this.canvas.width / 2 ) - ( img.width / 2) );
+            var y = Math.floor( ( this.canvas.height / 2 ) - ( img.height / 2) );
+            this.context.drawImage(img, 0, 0, img.width, img.height, x, y, img.width, img.height);
             return;
         },
 
         gameIntroMainLoop : function() {
             var l = this.Level[this.currentLevel];
             // Draw background
-            this.context.drawImage(l.bg, 0, l.background_y, 800, 600, 0, 0, 800, 600);
+            this.context.drawImage(l.bg, 0, l.background_y, this.canvas.width, this.canvas.height, 0, 0, this.canvas.width, this.canvas.height);
 
             this.context.fillStyle = this.fontColor;
             this.context.font = this.fontStyle;
@@ -268,7 +284,7 @@ function start_game() {
             this.Level[this.currentLevel].background_y--;
 
             if( l.done ) {
-                this.context.drawImage(l.levelComplete, 0, 0, 800, 600, 0, 0, 800, 600);
+                this.context.drawImage(l.levelComplete, 0, 0, this.canvas.width, this.canvas.height, 0, 0, this.canvas.width, this.canvas.height);
                 this.stop();
                 this.stateID = utils.setInterval(this, this.loadNextLevel, this.nextLevelTimer);
                 return;
@@ -277,10 +293,10 @@ function start_game() {
             // l.enemies
             l.enemies.forEach( function( e, i ) {
                 if ( !e ) return;
-                if ( !e.move( l.background_y + 600 ) ) l.removeEnemy( i );
-            });
+                if ( !e.move( l.background_y + this.canvas.height ) ) l.removeEnemy( i );
+            }, this );
 
-            this.player.move( 0, 728, l.background_y, l.background_y + 560 );
+            this.player.move( 0, this.canvas.width - this.player.w, l.background_y, l.background_y + this.canvas.height - this.player.h );
 
             this.updateShooting();
 
@@ -305,7 +321,11 @@ function start_game() {
             var anim, frame, w, h, proz, amount, bar, t;
 
             // Draw background
-            this.context.drawImage(l.bg, 0, l.background_y, 800, 600, 0, 0, 800, 600);
+            var tiles_x = Math.ceil( this.canvas.width / l.bg.width );
+            var tiles_y = Math.ceil( this.canvas.height / l.bg.height );
+            for ( var y = 0; y < tiles_y; y++ )
+                for ( var x = 0; x < tiles_x; x++ )
+                    this.context.drawImage( l.bg, 0, 0, l.bg.width, l.bg.height, ( x * l.bg.width ), ( y * l.bg.height ), l.bg.width, l.bg.height );
 
             // draw enemies
 
@@ -342,8 +362,8 @@ function start_game() {
             // draw Energybar
             bar = l.energyBar;
             proz = (this.player.energy / this.player.maxEnergy) * 100;
-            amount = (600 / 100) * proz;
-            for( i = 600; i > 600 - amount; i--) {
+            amount = (this.canvas.height / 100) * proz;
+            for( i = this.canvas.height; i > this.canvas.height - amount; i--) {
                 this.context.drawImage(bar, 0, 0, bar.width, bar.height, 0, i, bar.width, bar.height);
             }
 
@@ -352,9 +372,9 @@ function start_game() {
                 bar = l.fireballBar;
                 t = (new Date().getTime() - this.player.shotFireballTime);
                 proz = (t / this.player.shotFireballFrequency) * 100;
-                amount = (600 / 100) * proz;
-                for( i = 600; i > 600 - amount; i--) {
-                    this.context.drawImage(bar, 0, 0, bar.width, bar.height, 800 - bar.width, i, bar.width, bar.height);
+                amount = (this.canvas.height / 100) * proz;
+                for( i = this.canvas.height; i > this.canvas.height - amount; i--) {
+                    this.context.drawImage(bar, 0, 0, bar.width, bar.height, this.canvas.width - bar.width, i, bar.width, bar.height);
                 }
             }
 
@@ -365,7 +385,6 @@ function start_game() {
                     l.Effects[i].drawParticles(this.context);
                 }
             }
-
 
             return;
         }

@@ -2,7 +2,6 @@ Whishlist
 ================
 
 - Faster scrolling/shooting, faster game!
-- Fullscreen
 - Sound
 - When Asteroids collide and get hit they move by phsics collision
 - Endless game mode with predefined enemy formations in random order
@@ -15,4 +14,12 @@ Whishlist
 - Smaller background Image, more interesting background, static shooting elements on the background
 - new Designer: upload your own levels!
 - Runs on iPhones
+- Add thrust and brake keys to shooty
+- add a fire button
+- add gamecontroller as input device
+- bounding box collisions with any number of bounding boxes per animation frame ( requires a new file format )
+
+Done
+====
+- Fullscreen
 
