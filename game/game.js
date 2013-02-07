@@ -50,6 +50,7 @@ function start_game() {
         animateID: null,
         levelScriptID: null,
         playerShotID: null,
+        activeBGParticles: [],
         player: Object.create( Player ).setOptions( {
             x: 400, y: 500,
             speedX: 10, speedY: 10,
@@ -78,6 +79,7 @@ function start_game() {
             this.levelScriptID = utils.setInterval(this, this.Level[this.currentLevel].script, this.scriptTimer);
             this.playerShotID = utils.setInterval(this, this.fireShot, this.player.shotFrequency);
             this.player.setLevel( this.Level[ this.currentLevel ] );
+            this.initializeBGParticles();
         },
         stop: function() {
             window.clearInterval(this.stateID);
@@ -86,6 +88,19 @@ function start_game() {
             window.clearInterval(this.playerShotID);
         },
 
+        initializeBGParticles: function() {
+            var p;
+            for ( var i = 0; i < 100; i++ ) {
+                p = Object.create( global.Particle ).setOptions( {
+                    x: Math.floor( Math.random() * this.canvas.width ),
+                    y: Math.floor( -1 * Math.random() * this.canvas.height * 4 ),
+                    dy: 1,
+                    speedY: 10,
+                    anim: "mini_particle"
+                } );
+                this.activeBGParticles.push(p);
+            }
+        },
         gameOver : function() {
             this.stop();
             this.stateID = utils.setInterval(this, this.gameOverMainLoop, this.fps);
@@ -127,6 +142,10 @@ function start_game() {
         },
         animate : function() {
             var l = this.Level[this.currentLevel];
+
+            this.activeBGParticles.forEach( function( p ) {
+                p.animIndex = l.anims[ p.anim ].next( p.animIndex );
+            }, this );
 
             var a = l.anims[this.player.anim];
             this.player.animIndex = a.next( this.player.animIndex );
@@ -283,6 +302,13 @@ function start_game() {
 
             this.Level[this.currentLevel].background_y--;
 
+            this.activeBGParticles.forEach( function( p, i ) {
+                p.move();
+                if ( p.y > this.canvas.height ) this.activeBGParticles[ i ] = undefined;
+            }, this );
+
+            if( this.activeBGParticles.length < 20 ) this.initializeBGParticles();
+
             if( l.done ) {
                 this.context.drawImage(l.levelComplete, 0, 0, this.canvas.width, this.canvas.height, 0, 0, this.canvas.width, this.canvas.height);
                 this.stop();
@@ -314,10 +340,11 @@ function start_game() {
             this.activeShots = this.activeShots.filter( function( shot ) {
                 return shot.active;
             } );
+
+            this.activeBGParticles = this.activeBGParticles.filter( function( x ) { return x !== undefined; } );
         },
         draw: function() {
             var l = this.Level[this.currentLevel];
-            var that = this;
             var anim, frame, w, h, proz, amount, bar, t;
 
             // Draw background
@@ -327,19 +354,27 @@ function start_game() {
                 for ( var x = 0; x < tiles_x; x++ )
                     this.context.drawImage( l.bg, 0, 0, l.bg.width, l.bg.height, ( x * l.bg.width ), ( y * l.bg.height ), l.bg.width, l.bg.height );
 
+            // Draw flight particles
+            this.activeBGParticles.forEach( function( p ) {
+                if ( !p ) return;
+                anim = l.anims[p.anim];
+                frame = anim[p.animIndex];
+                this.context.drawImage(frame, 0, 0, frame.width, frame.height, p.x, p.y , frame.width, frame.height );
+            }, this );
+
             // draw enemies
 
             l.enemies.forEach( function( e, i ) {
                 if( !e ) return;
                 var anim = l.anims[e.anim];
                 var frame = anim[e.animIndex];
-                that.context.drawImage(frame, 0, 0, frame.width, frame.height, e.x, e.y - l.background_y, e.w, e.h);
-            });
+                this.context.drawImage(frame, 0, 0, frame.width, frame.height, e.x, e.y - l.background_y, e.w, e.h);
+            }, this);
             // draw Shots
             this.activeShots.forEach( function( shot ) {
                 var frame = l.anims[shot.anim][shot.animIndex];
-                that.context.drawImage(frame, 0, 0, frame.width, frame.height, shot.x, shot.y - l.background_y , frame.width, frame.height);
-            });
+                this.context.drawImage(frame, 0, 0, frame.width, frame.height, shot.x, shot.y - l.background_y , frame.width, frame.height);
+            }, this);
 
             // draw player
             if( ! this.player.blinkState ) {

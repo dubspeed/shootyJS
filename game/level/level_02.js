@@ -1,4 +1,4 @@
-Level = Object.create(MasterLevel);
+/*Level = Object.create(MasterLevel);
 Level.name = "02";
 (Level.gameOver = new Image()).src = "gfx/game_over.png";
 (Level.levelComplete =  new Image()).src = "gfx/level_complete.png";
@@ -54,3 +54,4 @@ Level.init = function() {
 
 }
 Game.Level.push(Level);
+*/

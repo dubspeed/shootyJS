@@ -31,17 +31,39 @@
         })
     });
 
-    global.Sprite = Object.create({}, {
+    global.Particle = Object.create( {} , {
         x: addOption( 0 ),
         y: addOption( 0 ),
         dx: addOption( 0 ),
         dy: addOption( 0 ),
         speedX: addOption( 0 ),
         speedY: addOption( 0 ),
-        energy: addOption( 0 ),
-        maxEnergy: addOption( 0 ),
         anim: addOption( "" ),
         animIndex: addOption( 0 ),
+        init: addMethod( function( options ) {
+            return this.setOptions( options );
+        } ),
+        toString: addMethod( function() {
+            return "Particle";
+        } ),
+        setOptions: addMethod( function( options ) {
+            for ( var opt in options ) {
+                if ( typeof this[ opt ] != "undefined" ) {
+                    this[ opt ] = options[ opt ];
+                }
+            }
+            return this;
+        } ),
+        move: addMethod( function() {
+            this.x += this.speedX * this.dx;
+            this.y += this.speedY * this.dy;
+        } )
+
+    });
+
+    global.Sprite = Object.create( global.Particle , {
+        energy: addOption( 0 ),
+        maxEnergy: addOption( 0 ),
         shooting: addOption( false ),
         shotFrequency: addOption( 0 ),
         shootLeft: addOption( null ),
@@ -57,14 +79,6 @@
         } ),
         // TODO: not compiler safe -> the compiler may have renamed the properties
         // they are not named the same
-        setOptions: addMethod( function( options ) {
-            for ( var opt in options ) {
-                if ( typeof this[ opt ] != "undefined" ) {
-                    this[ opt ] = options[ opt ];
-                }
-            }
-            return this;
-        } ),
         state: addOption( null ),
         addState: addMethod( function( state, callback ) {
             if ( ! this._states ) {

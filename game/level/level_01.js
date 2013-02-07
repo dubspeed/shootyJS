@@ -6,11 +6,11 @@ Level.name = "01";
 (Level.energyBar = new Image()).src = "gfx/energybar.png";
 (Level.fireballBar = new Image()).src = "gfx/fireball_timer.png";
 (Level.statusBar = new Image()).src = "gfx/statusbar.png";
-Level.ParticleGfx = new Array ();
-(img = new Image()).src = "gfx/particles/particle_1.png";
-Level.ParticleGfx.push( img );
-(img = new Image()).src = "gfx/particles/particle_2.png";
-Level.ParticleGfx.push( img );
+//Level.ParticleGfx = new Array ();
+//(img = new Image()).src = "gfx/particles/particle_1.png";
+//Level.ParticleGfx.push( img );
+//(img = new Image()).src = "gfx/particles/particle_2.png";
+//Level.ParticleGfx.push( img );
 
 Level.levelEndTime = 30;    // ticks
 
@@ -23,6 +23,8 @@ Level.introText.push("collect extras to improve shields and firepower!");
 
 Level.init = function( canvas ) {
     this.background_y = 10000;
+    this.addAnim("particles", "gfx/particles/particles", "png", 2);
+    this.addAnim("mini_particle", "gfx/mini_particle/mini_particle", "png", 1);
     this.addAnim("expl_small", "gfx/explo_small/explo", "png", 5);
     this.addAnim("shooty", "gfx/shooty/shooty", "png", 1);
     this.addAnim("shooty_left", "gfx/shooty_left/shooty_left", "png", 1);

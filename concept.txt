@@ -18,6 +18,7 @@ Whishlist
 - add a fire button
 - add gamecontroller as input device
 - bounding box collisions with any number of bounding boxes per animation frame ( requires a new file format )
+- "flight" particles
 
 Done
 ====
