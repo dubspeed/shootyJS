@@ -44,7 +44,9 @@ function start_game() {
             energy: 1000,
             maxEnergy: 2500,
             shooting: true,
-            shotFrequency: 300
+            shotFrequency: 300,
+            blinkFrequency: 100,
+            blinkTimeOut: 1500
         }),
         init : function() {
             this.canvas = document.getElementById('gcanvas');
@@ -52,24 +54,27 @@ function start_game() {
             this.player.init();
         },
         start : function() {
-            window.clearInterval(this.stateID);
-            window.clearInterval(this.animateID);
-            window.clearInterval(this.levelScriptID);
-            window.clearInterval(this.playerShotID);
+            this.stop();
             this.stateID = utils.setInterval(this, this.runningMainLoop, this.fps);
             this.animateID = utils.setInterval(this, this.animate, this.animationTimer);
             this.levelScriptID = utils.setInterval(this, this.Level[this.currentLevel].script, this.scriptTimer);
             this.playerShotID = utils.setInterval(this, this.fireShot, this.player.shotFrequency);
             this.player.setLevel( this.Level[ this.currentLevel ] );
         },
+        stop: function() {
+            window.clearInterval(this.stateID);
+            window.clearInterval(this.animateID);
+            window.clearInterval(this.levelScriptID);
+            window.clearInterval(this.playerShotID);
+        },
 
         gameOver : function() {
-            window.clearInterval(this.stateID);
+            this.stop();
             this.stateID = utils.setInterval(this, this.gameOverMainLoop, this.fps);
         },
 
         intro : function() {
-            window.clearInterval(this.stateID);
+            this.stop();
             this.stateID = utils.setInterval(this, this.gameIntroMainLoop, this.fps);
             utils.setTimeout(this, this.start, 4000); // 10 for debug
         },
@@ -78,7 +83,6 @@ function start_game() {
             if(this.currentLevel < this.Level.length - 1) {
                 this.currentLevel++;
                 this.Level[this.currentLevel].init();
-                //this.Level[this.currentLevel].Enemies = new Array();
                 this.intro();
             } else {
                 this.gameOver();
@@ -110,32 +114,25 @@ function start_game() {
         },
         animate : function() {
             var l = this.Level[this.currentLevel];
-            var anim = l.anims[this.player.anim];
-            var e, i;
-            var shot, shotID;
 
-            this.player.animIndex = anim.next( this.player.animIndex );
-            if ( this.player.state === "explode" && anim.lastFrame ) {
-                ( this.player.lives === 0 ) ? this.gameOver() : this.player.setState( "invul" );
-            }
+            var a = l.anims[this.player.anim];
+            this.player.animIndex = a.next( this.player.animIndex );
+            if ( this.player.state === "explode" )
+                if ( a.lastFrame )
+                    ( this.player.lives === 0 ) ? this.gameOver() : this.player.setState( "invul" );
 
             // animate shot
             this.activeShots.forEach( function( shot ) {
-                var anim = l.anims[ shot.anim ];
-                shot.animIndex = anim.next( shot.animIndex );
+                shot.animIndex = l.anims[ shot.anim ].next( shot.animIndex );
             });
 
             // animate enemys
-            for( i = 0; i < l.Enemies.length; i++) {
-                if ( !l.Enemies[i] )
-                    continue;
-                e = l.Enemies[i];
-                anim = l.anims[ e.anim ];
-                e.animIndex = anim.next( e.animIndex );
-                if ( e.state === "explode" ) {
+            l.enemies.forEach( function ( e, i ) {
+                if ( !e ) return;
+                e.animIndex = l.anims[ e.anim ].next( e.animIndex );
+                if ( e.state === "explode" )
                     ( e.extra ) ? e.setState( "extra" ) : l.removeEnemy( i );
-                }
-            }
+            });
         },
 
         keyDownEvent : function(event) {
@@ -195,85 +192,22 @@ function start_game() {
             }
             return;
         },
-
-        runningMainLoop : function() {
+        updateShooting: function() {
             var l = this.Level[this.currentLevel];
-            var e, i, j;
-            var cords, _;
-            var anim, frame, w, h, proz, amount, bar, t;
-            var shotID, shot;
+            var that = this;
 
-            this.Level[this.currentLevel].background_y--;
-
-            if(l.done === true) {
-                this.context.drawImage(l.levelComplete, 0, 0, 800, 600, 0, 0, 800, 600);
-                window.clearInterval(this.stateID);
-                this.stateID = utils.setInterval(this, this.loadNextLevel, this.nextLevelTimer);
-                return;
-            }
-
-            // l.Enemies
-            for( i = 0; i < l.Enemies.length; i++) {
-                if( !l.Enemies[i] )
-                    continue;
-                if(l.Enemies[i].y > l.background_y + 600) {
-                    l.removeEnemy(i);
-                    continue;
-                }
-                if(l.Enemies[i].state != "explode") {
-                    cords = l.Enemies[i].tick();
-                    l.Enemies[i].x += cords[0];
-                    l.Enemies[i].y += cords[1];
-                }
-                l.Enemies[i].w = l.anims[l.Enemies[i].anim][l.Enemies[i].animIndex].width;
-                l.Enemies[i].h = l.anims[l.Enemies[i].anim][l.Enemies[i].animIndex].height;
-            }
-
-            if(this.player.state == "normal" || this.player.state == "invul") {
-                // Update this.player position
-                // add "standard thrust" - move with y plane
-                this.player.y--;
-                if(this.player.x < 0)
-                    this.player.x = 0;
-                if(this.player.x > 728)
-                    this.player.x = 728;
-                if(this.player.y < l.background_y)
-                    this.player.y = l.background_y;
-                if(this.player.y > l.background_y + 560)
-                    this.player.y = l.background_y + 560;
-                if(this.player.x + this.player.dx >= 0 &&
-                   this.player.x + this.player.dx <= 728 &&
-                       this.player.y + this.player.dy >= l.background_y &&
-                           this.player.y + this.player.dy <= l.background_y + 560) {
-
-                    this.player.x += this.player.dx;
-                    this.player.y += this.player.dy;
-                }
-                this.player.anim = "shooty";
-                if(this.player.dx < 0) {
-                    this.player.anim = "shooty_left";
-                } else if(this.player.dx > 0) {
-                    this.player.anim = "shooty_right";
-                }
-            }
-
-            this.player.w = l.anims[this.player.anim][this.player.animIndex].width;
-            this.player.h = l.anims[this.player.anim][this.player.animIndex].height;
-
-            // Update shots
-            for( i = 0; i < l.Enemies.length; i++) {
-                if ( !l.Enemies[i] )
-                    continue;
-                e = l.Enemies[i];
+            l.enemies.forEach( function( e ) {
+                if ( !e ) return;
                 e.shootingTimer++;
                 if(e.shootingTimer >= e.shootingFrequency) {
-                    l.Enemies[i].doShooting(l.Enemies[i]);
+                    e.doShooting( e );
                     e.shootingTimer = 0;
                 }
-            }
+            });
+
             this.activeShots.forEach( function( shot ) {
                 shot.y += shot.dy;
-                if ( shot.y <= l.background_y ) { //TODO|| shot.y - l.background_y >= 400 ) {
+                if ( shot.y <= l.background_y ) { //TODO enemy shot || shot.y - l.background_y >= 400 ) {
                     shot.active = false;
                     return;
                 }
@@ -288,74 +222,104 @@ function start_game() {
                     }
                 }
 
-                for( j = 0; j < l.Enemies.length; j++) {
-                    if( !l.Enemies[j] )
-                        continue;
+                l.enemies.forEach( function( e, j ) {
+                    if ( !e ) return;
                     // Enemy collides with shot
-                    e = l.Enemies[j];
-                    if(e.state == "normal" && this.collide(shot, e) && shot.enemy_shot === false) {
+                    if(e.state == "normal" && that.collide(shot, e) && shot.enemy_shot === false) {
                         shot.active = false;
-                        this.player.points += e.points;
+                        that.player.points += e.points;
                         e.energy -= shot.energy;
                         if(e.energy <= 0) {
                             e.setState("explode");
                             l.Effects.push(new ParticleEffekt(l, e.x + e.w / 2, e.y + e.h / 2));
-                            break;
-                        } else {
-                            continue;
                         }
                     }
-                }
+                });
             }, this );
+
+        },
+        collidePlayerAndEnemies: function() {
+            var l = this.Level[this.currentLevel];
+            var that = this;
+
+            l.enemies.forEach( function( e, i ) {
+                if( !e || !that.collide( that.player, e ) ) return;
+                if( e.state == "normal" ) {
+                    that.player.energy -= 500;
+                    if( that.player.energy <= 0 ) {
+                        that.player.setState("explode");
+                        l.Effects.push(new ParticleEffekt(l, that.player.x + that.player.w / 2, that.player.y + that.player.h / 2));
+                        that.player.points += e.points;
+                    }
+                    e.setState("explode");
+                    l.Effects.push(new ParticleEffekt(l, e.x + e.w / 2, e.y + e.h / 2));
+                }
+                if(e.state == "extra") {
+                    that.player.addExtra(e.extra.name);
+                    l.removeEnemy(i);
+                }
+            });
+
+        },
+        runningMainLoop : function() {
+            var l = this.Level[this.currentLevel];
+            var that = this;
+
+            this.Level[this.currentLevel].background_y--;
+
+            if( l.done ) {
+                this.context.drawImage(l.levelComplete, 0, 0, 800, 600, 0, 0, 800, 600);
+                this.stop();
+                this.stateID = utils.setInterval(this, this.loadNextLevel, this.nextLevelTimer);
+                return;
+            }
+
+            // l.enemies
+            l.enemies.forEach( function( e, i ) {
+                if ( !e ) return;
+                if ( !e.move( l.background_y + 600 ) ) l.removeEnemy( i );
+            });
+
+            this.player.move( 0, 728, l.background_y, l.background_y + 560 );
+
+            this.updateShooting();
+
+            // Detect this.player - Enemy collisions
+            if(this.player.state == "normal") {
+                this.collidePlayerAndEnemies();
+            }
+
+            this.draw();
+
+            // clear Arrays
+            l.enemies = l.enemies.filter( function( x ) { return x !== undefined; } );
 
             // remove all inactive shots
             this.activeShots = this.activeShots.filter( function( shot ) {
                 return shot.active;
             } );
+        },
+        draw: function() {
+            var l = this.Level[this.currentLevel];
+            var that = this;
+            var anim, frame, w, h, proz, amount, bar, t;
 
-            // Detect this.player - Enemy collisions
-            if(this.player.state == "normal") {
-                for( i = 0; i < l.Enemies.length; i++) {
-                    if( !l.Enemies[i] )
-                        continue;
-                    e = l.Enemies[i];
-                    if(!this.collide(this.player, e))
-                        continue;
-                    if(e.state == "normal") {
-                        this.player.energy -= 500;
-                        if(this.player.energy <= 0) {
-                            this.player.setState("explode");
-                            l.Effects.push(new ParticleEffekt(l, this.player.x + this.player.w / 2, this.player.y + this.player.h / 2));
-                            this.player.points += e.points;
-                        }
-                        e.setState("explode");
-                        l.Effects.push(new ParticleEffekt(l, e.x + e.w / 2, e.y + e.h / 2));
-                    }
-                    if(e.state == "extra") {
-                        // apply extra to this.player
-                        this.player.addExtra(e.extra.name);
-                        l.removeEnemy(i);
-                    }
-                }
-            }
             // Draw background
             this.context.drawImage(l.bg, 0, l.background_y, 800, 600, 0, 0, 800, 600);
 
-            // draw Enemies
-            for( i = 0; i < l.Enemies.length; i++) {
-                if( !l.Enemies[i] )
-                    continue;
-                e = l.Enemies[i];
-                anim = l.anims[e.anim];
-                frame = anim[e.animIndex];
-                this.context.drawImage(frame, 0, 0, frame.width, frame.height, e.x, e.y - l.background_y, e.w, e.h);
-            }
+            // draw enemies
+
+            l.enemies.forEach( function( e, i ) {
+                if( !e ) return;
+                var anim = l.anims[e.anim];
+                var frame = anim[e.animIndex];
+                that.context.drawImage(frame, 0, 0, frame.width, frame.height, e.x, e.y - l.background_y, e.w, e.h);
+            });
             // draw Shots
-            for ( shotID in this.activeShots ) {
-                shot = this.activeShots[ shotID ];
-                frame = l.anims[shot.anim][shot.animIndex];
-                this.context.drawImage(frame, 0, 0, frame.width, frame.height, shot.x, shot.y - l.background_y , frame.width, frame.height);
-            }
+            this.activeShots.forEach( function( shot ) {
+                var frame = l.anims[shot.anim][shot.animIndex];
+                that.context.drawImage(frame, 0, 0, frame.width, frame.height, shot.x, shot.y - l.background_y , frame.width, frame.height);
+            });
 
             // draw player
             if( ! this.player.blinkState ) {
@@ -401,6 +365,7 @@ function start_game() {
                     l.Effects[i].drawParticles(this.context);
                 }
             }
+
 
             return;
         }

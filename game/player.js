@@ -2,17 +2,20 @@
 Player = (function( global ) {
     "use strict";
 
-    // basic tasks of the Player object
-    // 1. state machine -> redundant with enemy / -> sprite /-> linked to animations
-    // 2. fire fireball and shots -> enemies can do, too -> sprite
-    // 3. movement ( in main)
-    //
     var addOption = global.utils.addOption;
     var addMethod = global.utils.addMethod;
 
     return Object.create( global.BlinkingSprite, {
         lives: addOption( 3 ),
         points: addOption( 0 ),
+        blinkFrequency: addOption( 300 ),
+        blinkTimeOut: addOption( 1500 ),
+        w: { get: function() {
+            return this.level && this.anim && this.level.anims[ this.anim ][ this.animIndex ].width;
+        } },
+        h: { get: function() {
+            return this.level && this.anim && this.level.anims[ this.anim ][ this.animIndex ].height;
+        } },
 
         init: addMethod( function( ) {
             this.addState( "normal", this.stateNormal );
@@ -25,6 +28,7 @@ Player = (function( global ) {
             this.shotId = global.utils.setInterval(this, this.fireShot, this.shotFrequency);
         }),
         setLevel: addMethod( function( level ) {
+            Object.defineProperty( this, "level", addOption( level ) );
             this.y += level.background_y;
         }),
         stopBlink: addMethod( function () {
@@ -109,156 +113,27 @@ Player = (function( global ) {
                 this.shotFireball = true;
                 this.shotFireballId = global.utils.setInterval(this, this.fireFireball, this.shotFireballFrequency);
             }
+        }),
+        move: addMethod( function( min_x, max_x, min_y, max_y ) {
+              if(this.state == "normal" || this.state == "invul") {
+                // Update this position
+                // add "standard thrust" - move with y plane
+                this.y--;
+                if( this.x <= min_x ) this.x = min_x;
+                if( this.x >= max_x ) this.x = max_x;
+                if( this.y <= min_y ) this.y = min_y;
+                if( this.y >= max_y ) this.y = max_y;
+                if( this.x + this.dx >= min_x && this.x + this.dx <= max_x && this.y + this.dy >= min_y && this.y + this.dy <= max_y) {
+                    this.x += this.dx;
+                    this.y += this.dy;
+                }
+                this.anim = "shooty";
+                if( this.dx < 0 ) this.anim = "shooty_left";
+                else if( this.dx > 0 ) this.anim = "shooty_right";
+            }
+
         })
 
     });
 }( this ));
-
-/*
-var Player = {};
-Player.x = 400;
-Player.y = 500;
-Player.dx = 0;
-Player.dy = 0;
-Player.speedX = 10;
-Player.speedY = 10;
-Player.points = 0;
-Player.animIndex = 0;
-Player.anim = "shooty";
-Player.lives = 3;
-Player.energy = 1000;
-Player.maxEnergy = 2500;
-Player.shooting = true;
-Player.shotFrequency = 300;
-Player.shotId = null;
-
-Player.doubleshot = false;
-Player.shotFireball = false;
-Player.shotFireballId = undefined;
-Player.shotFireballFrequency = 1200;
-Player.shotFireballTime = null;
-
-
-// normal || explode || invul
-Player.state = "normal";
-Player.blinkFrequency = 100;
-Player.blinkTimeOut = 1500;
-utils.mixin( Blinker, Player );
-
-Player.init = function(level) {
-    Player.shotId = utils.setInterval(this, Player.fireShot, Player.shotFrequency);
-    Player.y += level.background_y;
-};
-
-Player.stopBlink = function () {
-    Player.setState("normal");
-};
-Player.setState = function(state) {
-    Player.state = state;
-    Player.animIndex = 0;
-    switch (Player.state) {
-        case "normal":
-            Player.stateNormal();
-            break;
-        case "explode":
-            Player.stateExplode();
-            break;
-        case "invul":
-            Player.stateInvul();
-            break;
-    }
-};
-Player.stateNormal = function () {
-    Player.shooting = true;
-};
-Player.stateExplode = function () {
-    Player.anim = "expl_small";
-    Player.lives -= 1;
-};
-Player.stateInvul = function () {
-    Player.energy = 1000;
-    Player.anim = "shooty";
-    Player.shooting = false;
-    Player.blink.start( Player.blinkFrequency, Player.blinkTimeOut, Player.stopBlink );
-};
-
-Player.fireFireball = function() {
-    var i, s1;
-    s1 = null;
-    for( i = 0; i < MAXSHOTS; i++) {
-        if(ActiveShots[i].active === false) {
-            s1 = i;
-            break;
-        }
-    }
-    ActiveShots[s1].y = Player.y - ActiveShots[s1].h;
-    ActiveShots[s1].x = Player.x + (Player.w / 2) - (ActiveShots[s1].w / 2);
-    ActiveShots[s1].active = true;
-    ActiveShots[s1].active = true;
-    ActiveShots[s1].anim = "shot_fireball";
-    ActiveShots[s1].dy = -5;
-    ActiveShots[s1].energy = 250;
-    ActiveShots[s1].enemy_shot = false;
-    Player.shotFireballTime = new Date().getTime();
-};
-Player.fireShot = function() {
-    var s1, s2, i;
-    if(Player.shooting === false)
-        return;
-    s1 = s2 = null;
-    for( i = 0; i < MAXSHOTS; i++) {
-        if(ActiveShots[i].active === false) {
-            s1 = i;
-            break;
-        }
-    }
-    if(Player.doubleshot) {
-        for( i = 0; i < MAXSHOTS; i++) {
-            if(ActiveShots[i].active === false && i != s1) {
-                s2 = i;
-                break;
-            }
-        }
-    }
-    if(s1 !== null) {
-        ActiveShots[s1].y = Player.y - ActiveShots[s1].h;
-        if(Player.doubleshot)
-            ActiveShots[s1].x = Player.x + (Player.w / 2) - (ActiveShots[s1].w / 2) + 10;
-        else
-            ActiveShots[s1].x = Player.x + (Player.w / 2) - (ActiveShots[s1].w / 2);
-        ActiveShots[s1].active = true;
-
-        ActiveShots[s1].anim = "shot";
-        ActiveShots[s1].dy = -10;
-        ActiveShots[s1].energy = 50;
-        ActiveShots[s1].enemy_shot = false;
-    }
-    if(s2 !== null) {
-        ActiveShots[s2].y = Player.y - ActiveShots[s2].h;
-        ActiveShots[s2].x = Player.x + (Player.w / 2) - (ActiveShots[s2].w / 2) - 10;
-        ActiveShots[s2].active = true;
-
-        ActiveShots[s2].anim = "shot";
-        ActiveShots[s2].dy = -10;
-        ActiveShots[s2].energy = 50;
-        ActiveShots[s2].enemy_shot = false;
-    }
-};
-Player.addExtra = function(extraName) {
-    if(extraName == "extra_live") {
-        Player.lives += 1;
-    }
-    if(extraName == "extra_energy") {
-        Player.energy += 100;
-    }
-    if(extraName == "extra_doubleshot") {
-        Player.doubleshot = true;
-    }
-    if(extraName == "extra_fireball" && Player.shotFireball === false) {
-        Player.shotFireballTime = new Date().getTime();
-        Player.shotFireball = true;
-        Player.shotFireballId = utils.setInterval(this, Player.fireFireball, Player.shotFireballFrequency);
-    }
-};
-*/
 

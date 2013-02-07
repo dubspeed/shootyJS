@@ -1,0 +1,18 @@
+Whishlist
+================
+
+- Faster scrolling/shooting, faster game!
+- Fullscreen
+- Sound
+- When Asteroids collide and get hit they move by phsics collision
+- Endless game mode with predefined enemy formations in random order
+- Game Over: restart for 10.000 points with 3 new lives at same positions
+- Highscores
+- Enemies shoot
+- More types of shots and more extras to collect
+- Extras drop less often, maybe some scripted ( 1 lives only around every xxx minutes )
+- Enemies left / right animation support so they dont look so static
+- Smaller background Image, more interesting background, static shooting elements on the background
+- new Designer: upload your own levels!
+- Runs on iPhones
+
