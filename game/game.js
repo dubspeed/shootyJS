@@ -7,7 +7,7 @@
 function adjustCanvas() {
     var canvas = document.getElementById('gcanvas');
     canvas.width = window.innerWidth;
-    canvas.height = document.height;
+    canvas.height = window.innerHeight;
     return canvas;
 }
 
